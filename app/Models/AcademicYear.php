@@ -18,4 +18,16 @@ class AcademicYear extends Model
         'end_date'   => 'date',
         'is_active'  => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (AcademicYear $academicYear) {
+            if ($academicYear->is_active) {
+                static::where('id', '!=', $academicYear->id)
+                    ->update([
+                        'is_active' => false,
+                    ]);
+            }
+        });
+    }
 }
