@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Registration extends Model
 {
+    use HasFactory;
     protected $fillable = [
     'academic_year_id',
     'registration_period_id',
@@ -52,6 +54,10 @@ class Registration extends Model
     protected $casts = [
         'birth_date' => 'date',
         'special_needs' => 'boolean',
+        'height' => 'decimal:2',
+        'weight' => 'decimal:2',
+        'head_circumference' => 'decimal:2',
+        'distance_km' => 'decimal:2',
     ];
 
     public function academicYear()
