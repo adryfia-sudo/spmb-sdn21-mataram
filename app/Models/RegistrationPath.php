@@ -9,7 +9,6 @@ class RegistrationPath extends Model
     protected $fillable = [
         'name',
         'description',
-        'quota',
         'is_active',
     ];
 

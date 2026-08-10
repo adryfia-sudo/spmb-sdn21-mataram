@@ -1,149 +1,132 @@
-<div class="container py-5">
-    
-    <h2 class="mb-4">
-        Pendaftaran Murid Baru
-    </h2>
+<div class="container py-4">
 
-    <div class="alert alert-primary">
-        Langkah {{ $step }} dari 8
+    {{-- ========================================================= --}}
+    {{-- JUDUL --}}
+    {{-- ========================================================= --}}
+
+    <div class="mb-4">
+        <h2 class="mb-1">
+            Pendaftaran Murid Baru
+        </h2>
+
+        <p class="text-muted mb-0">
+            SPMB SD Negeri 21 Mataram
+        </p>
     </div>
 
-    @if($step == 1)
 
-        <div class="card shadow-sm">
+    {{-- ========================================================= --}}
+    {{-- PROGRESS --}}
+    {{-- ========================================================= --}}
 
-            <div class="card-header">
-                <h4>Pilih Jalur Pendaftaran</h4>
-            </div>
+    <div class="progress mb-4" style="height: 24px;">
 
-            <div class="card-body">
+        <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: {{ ($step / 8) * 100 }}%;"
+            aria-valuenow="{{ $step }}"
+            aria-valuemin="1"
+            aria-valuemax="8">
+
+            Langkah {{ $step }} dari 8
+
+        </div>
+
+    </div>
 
 
-                     @foreach($paths as $path)
+    {{-- ========================================================= --}}
+    {{-- ISI STEP --}}
+    {{-- ========================================================= --}}
 
-                    <div class="form-check border rounded p-3 mb-3">
+    @includeIf('livewire.registration.steps.step-' . $step)
 
-                        <input
-                            class="form-check-input"
-                            type="radio"
-                            wire:model="registration_path_id"
-                            value="{{ $path->id }}"
-                            id="path{{ $path->id }}">
 
-                        <label
-                            class="form-check-label w-100"
-                            for="path{{ $path->id }}">
+    {{-- ========================================================= --}}
+    {{-- NAVIGASI STEP 1 - 7 --}}
+    {{-- ========================================================= --}}
 
-                            <strong>{{ $path->name }}</strong>
- @if($path->description)
-                                <div class="text-muted">
-                                    {{ $path->description }}
-                                </div>
-                            @endif
+    @if($step < 8)
 
-                        </label>
+        <div class="mt-4 d-flex justify-content-between">
 
-                    </div>
+            {{-- Tombol Kembali --}}
+            <button
+                type="button"
+                class="btn btn-secondary"
+                wire:click="previousStep"
+                @disabled($step == 1)>
 
-                @endforeach
+                ← Kembali
 
-                @error('registration_path_id')
-                    <div class="text-danger mt-2">
-                        {{ $message }}
-                    </div>
-                @enderror
+            </button>
 
-            </div>
+
+            {{-- Tombol Lanjut --}}
+            <button
+                type="button"
+                class="btn btn-primary"
+                wire:click="nextStep"
+                wire:loading.attr="disabled">
+
+                <span wire:loading.remove>
+                    Lanjut
+                </span>
+
+                <span wire:loading>
+                    Memproses...
+                </span>
+
+            </button>
 
         </div>
 
     @endif
-@if($step == 2)
-
-<div class="card shadow-sm">
-
-    <div class="card-header">
-        <h4>Data Calon Murid</h4>
-    </div>
-
-    <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-                <label class="form-label">
-                    Nama Lengkap
-                </label>
-
-                <input
-                    type="text"
-                    class="form-control"
-                    wire:model.defer="full_name">
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <label class="form-label">
-                    NIK
-                </label>
-
-                <input
-                    type="text"
-                    maxlength="16"
-                    class="form-control"
-                    wire:model.defer="nik">
-            </div>
-
-        </div>
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-                <label class="form-label">
-                    NISN
-                </label>
-
-                <input
-                    type="text"
-                    class="form-control"
-                    wire:model.defer="nisn">
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <label class="form-label">
-                    Nomor KK
-                </label>
-
-                <input
-                    type="text"
-                    class="form-control"
-                    wire:model.defer="family_card_number">
-            </div>
-
-        </div>
-
-    </div>
 
 </div>
+@if($step === 9)
+
+    <div class="card border-success">
+
+        <div class="card-body text-center py-5">
+
+            <div class="mb-4">
+                <span
+                    class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white"
+                    style="width: 70px; height: 70px; font-size: 35px;">
+                    ✓
+                </span>
+            </div>
+
+            <h3 class="text-success fw-bold mb-3">
+                Pendaftaran Berhasil
+            </h3>
+
+            <p class="text-muted mb-4">
+                Pendaftaran peserta didik berhasil disimpan.
+            </p>
+
+            @if(session('registration_success'))
+                <div class="alert alert-success">
+                    {{ session('registration_success') }}
+                </div>
+            @endif
+
+            @if($registration)
+                <div class="alert alert-info">
+
+                    <strong>Nomor Pendaftaran</strong>
+
+                    <div class="fs-4 fw-bold mt-2">
+                        {{ $registration->registration_number }}
+                    </div>
+
+                </div>
+            @endif
+
+        </div>
+
+    </div>
 
 @endif
-    <div class="mt-4 d-flex justify-content-between">
-
-        <button
-            type="button"
-            wire:click="previousStep"
-            class="btn btn-secondary"
-            @disabled($step == 1)>
-            Kembali
-        </button>
-
-        <button
-            type="button"
-            wire:click="nextStep"
-            class="btn btn-primary">
-
-            {{ $step == 8 ? 'Simpan' : 'Lanjut' }}
-  </button>
-
-    </div>
-
-</div>

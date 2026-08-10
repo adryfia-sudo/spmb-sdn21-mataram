@@ -10,17 +10,20 @@ class StudentParent extends Model
     protected $fillable = [
         'registration_id',
         'type',
-        'is_alive',
-        'name',
+        'full_name',
         'nik',
         'birth_year',
         'education',
-        'occupation',
+        'job',
         'income',
+        'phone',
+        'is_alive',
+        'is_guardian',
     ];
 
     protected $casts = [
         'is_alive' => 'boolean',
+        'is_guardian' => 'boolean',
     ];
 
     public function registration(): BelongsTo

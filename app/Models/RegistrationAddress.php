@@ -5,21 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StudentGuardian extends Model
+class RegistrationAddress extends Model
 {
-    protected $table = 'student_guardian';
-
     protected $fillable = [
         'registration_id',
-        'full_name',
-        'family_relation',
-        'nik',
-        'birth_year',
-        'education',
-        'job',
-        'income',
-        'phone',
         'address',
+        'province',
+        'city',
+        'district',
+        'village',
+        'hamlet',
+        'rt',
+        'rw',
+        'postal_code',
+        'latitude',
+        'longitude',
     ];
 
     public function registration(): BelongsTo

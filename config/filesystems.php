@@ -29,6 +29,10 @@ return [
     */
 
     'disks' => [
+        'nextcloud' => [
+        'driver' => 'local',
+        'root' => storage_path('app/nextcloud'),
+    ],
 
         'local' => [
             'driver' => 'local',

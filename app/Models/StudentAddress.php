@@ -9,18 +9,22 @@ class StudentAddress extends Model
 {
     protected $fillable = [
         'registration_id',
-        'kk_number',
-        'birth_certificate_number',
+        'address',
+        'province',
+        'city',
+        'district',
+        'village',
+        'hamlet',
         'rt',
         'rw',
-        'dusun',
-        'village',
-        'district',
         'postal_code',
-        'distance',
-        'travel_time',
-        'transportation',
-        'residence_type',
+        'latitude',
+        'longitude',
+    ];
+
+    protected $casts = [
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
     ];
 
     public function registration(): BelongsTo

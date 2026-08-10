@@ -49,48 +49,29 @@
 
 <section class="container py-5">
 
-    {{-- Statistik --}}
+{{-- Statistik --}}
 
-    <div class="row g-4 mb-5">
+<div class="row g-4 mb-5">
 
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h2>{{ $totalQuota }}</h2>
-                    <p class="mb-0">Kuota</p>
-                </div>
+    <div class="col-md-6">
+        <div class="card text-center shadow-sm h-100">
+            <div class="card-body">
+                <h2>{{ $totalRegistered }}</h2>
+                <p class="mb-0">Sudah Mendaftar</p>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h2>{{ $totalRegistered }}</h2>
-                    <p class="mb-0">Sudah Mendaftar</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h2>{{ $remainingQuota }}</h2>
-                    <p class="mb-0">Sisa Kuota</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h2>{{ $totalPaths }}</h2>
-                    <p class="mb-0">Jalur</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 
+    <div class="col-md-6">
+        <div class="card text-center shadow-sm h-100">
+            <div class="card-body">
+                <h2>{{ $totalPaths }}</h2>
+                <p class="mb-0">Jalur Pendaftaran</p>
+            </div>
+        </div>
+    </div>
+
+</div>
     {{-- Jalur Pendaftaran --}}
 
     <h2 class="mb-4">Jalur Pendaftaran</h2>
@@ -112,12 +93,7 @@
                         </p>
 
                         <hr>
-
-                        <p>
-                            <strong>Kuota :</strong>
-                            {{ $path->quota }}
-                        </p>
-
+                                               
                         <a href="{{ route('registration.create') }}"
                             class="btn btn-primary">
                             Daftar Jalur Ini

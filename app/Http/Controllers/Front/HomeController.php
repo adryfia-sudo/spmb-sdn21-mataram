@@ -13,23 +13,19 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $school = \App\Models\School::first();
+        $school = School::first();
 
-        $academicYear = \App\Models\AcademicYear::where('is_active', true)
+        $academicYear = AcademicYear::where('is_active', true)
             ->first();
 
-        $registrationPeriod = \App\Models\RegistrationPeriod::where('is_active', true)
+        $registrationPeriod = RegistrationPeriod::where('is_active', true)
             ->first();
 
-        $registrationPaths = \App\Models\RegistrationPath::where('is_active', true)
+        $registrationPaths = RegistrationPath::where('is_active', true)
             ->orderBy('sort_order')
             ->get();
 
-        $totalQuota = $registrationPaths->sum('quota');
-
         $totalRegistered = Registration::count();
-
-        $remainingQuota = max($totalQuota - $totalRegistered, 0);
 
         $totalPaths = $registrationPaths->count();
 
@@ -38,9 +34,7 @@ class HomeController extends Controller
             'academicYear',
             'registrationPeriod',
             'registrationPaths',
-            'totalQuota',
             'totalRegistered',
-            'remainingQuota',
             'totalPaths',
         ));
     }
