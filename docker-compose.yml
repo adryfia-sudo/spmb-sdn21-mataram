@@ -1,0 +1,44 @@
+services:
+
+  spmb:
+    container_name: spmb-sdn21-mataram
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:80"
+
+    env_file:
+      - .env
+
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
+      DB_CONNECTION: pgsql
+      DB_HOST: postgresql
+      DB_PORT: 5432
+
+    volumes:
+      - spmb_storage:/var/www/html/storage
+
+    networks:
+      - spmb_network
+      - postgresql_default
+
+networks:
+
+  spmb_network:
+    driver: bridge
+
+  postgresql_default:
+    external: true
+
+volumes:
+
+  spmb_storage:
+    driver: local

@@ -34,6 +34,13 @@ return [
         'root' => storage_path('app/nextcloud'),
     ],
 
+'livewire' => [
+    'driver' => 'local',
+    'root' => storage_path('app/livewire-tmp'),
+    'throw' => false,
+    'report' => false,
+],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
