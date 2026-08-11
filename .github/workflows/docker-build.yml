@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main", "master" ] # Jalankan build setiap Anda push ke branch main/master
+    branches: [ "main", "master", "feature/redesign-spmb" ] # Jalankan build setiap Anda push ke branch main/master
 
 env:
   REGISTRY: ghcr.io

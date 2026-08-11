@@ -1,25 +1,18 @@
 FROM php:8.5-apache
 
-# ------------------------------------------------------------
-# System dependencies
-# ------------------------------------------------------------
-
-RUN apt-get update \
+# 1. Optimasi Repositori & Install System Dependencies Dasar
+RUN sed -i 's|deb.debian.org|cdn-fastly.deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
         unzip \
-        libpq-dev \
-        libzip-dev \
-        libicu-dev \
-        libonig-dev \
-        libxml2-dev \
-        libpng-dev \
-        libjpeg62-turbo-dev \
-        libfreetype6-dev \
-    && docker-php-ext-configure gd \
-        --with-freetype \
-        --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Download script installer ekstensi biner (mencegah kompilasi berat)
+ADD https://github.com /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions \
         pdo_pgsql \
         pgsql \
         mbstring \
@@ -30,21 +23,14 @@ RUN apt-get update \
         pcntl \
         opcache \
         gd \
-    && a2enmod rewrite \
-    && rm -rf /var/lib/apt/lists/*
+    && a2enmod rewrite
 
-# ------------------------------------------------------------
-# Composer
-# ------------------------------------------------------------
-
+# Composer (Lanjutkan ke baris kode Anda berikutnya...)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# ------------------------------------------------------------
 # Composer dependencies
-# ------------------------------------------------------------
-
 COPY composer.json composer.lock ./
 
 RUN composer install \
@@ -53,16 +39,10 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-# ------------------------------------------------------------
 # Laravel application
-# ------------------------------------------------------------
-
 COPY . .
 
-# ------------------------------------------------------------
 # Apache -> Laravel public
-# ------------------------------------------------------------
-
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 RUN sed -ri \
@@ -71,10 +51,7 @@ RUN sed -ri \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
 
-# ------------------------------------------------------------
-# Laravel permissions
-# ------------------------------------------------------------
-
+# Laravel directories and permissions
 RUN mkdir -p \
         storage/framework/cache \
         storage/framework/sessions \
@@ -88,10 +65,7 @@ RUN mkdir -p \
         storage \
         bootstrap/cache
 
-# ------------------------------------------------------------
 # PHP configuration
-# ------------------------------------------------------------
-
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.validate_timestamps=1'; \

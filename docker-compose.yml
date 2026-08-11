@@ -1,5 +1,4 @@
 services:
-
   spmb:
     container_name: spmb-sdn21-mataram
 
@@ -10,7 +9,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "8080:80"
+      - "8000:80"
 
     env_file:
       - .env
@@ -31,7 +30,6 @@ services:
       - postgresql_default
 
 networks:
-
   spmb_network:
     driver: bridge
 
@@ -39,6 +37,5 @@ networks:
     external: true
 
 volumes:
-
   spmb_storage:
     driver: local
