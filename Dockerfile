@@ -1,18 +1,24 @@
-FROM php:8.3-apache
+FROM php:8.5-apache
 
-# 1. Optimasi Repositori & Install System Dependencies Dasar
+# 1. Gunakan Mirror Resmi Fastly & Install Dependensi Sistem Debian Trixie
 RUN sed -i 's|deb.debian.org|cdn-fastly.deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
         unzip \
+        libpq-dev \
+        libzip-dev \
+        libicu-dev \
+        libonig-dev \
+        libxml2-dev \
+        libpng-dev \
+        libjpeg62-turbo-dev \
+        libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Download script installer ekstensi biner (mencegah kompilasi berat)
-ADD https://github.com /usr/local/bin/
-
-RUN chmod +x /usr/local/bin/install-php-extensions \
-    && install-php-extensions \
+# 2. Kompilasi Ekstensi PHP 8.5 Secara Native (Tanpa Script install-php-extensions yang Rusak)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
         pdo_pgsql \
         pgsql \
         mbstring \
@@ -25,7 +31,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions \
         gd \
     && a2enmod rewrite
 
-# Composer (Lanjutkan ke baris kode Anda berikutnya...)
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
