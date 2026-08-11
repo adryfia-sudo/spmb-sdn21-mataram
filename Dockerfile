@@ -16,18 +16,16 @@ RUN sed -i 's|deb.debian.org|cdn-fastly.deb.debian.org|g' /etc/apt/sources.list.
         libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Kompilasi Ekstensi PHP 8.5 Secara Native (Tanpa Script install-php-extensions yang Rusak)
+# 2. Kompilasi Ekstensi PHP 8.5 (mbstring & opcache dihilangkan karena sudah built-in bawaan PHP 8.5)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         pdo_pgsql \
         pgsql \
-        mbstring \
         bcmath \
         intl \
         zip \
         exif \
         pcntl \
-        opcache \
         gd \
     && a2enmod rewrite
 
