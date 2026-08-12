@@ -203,4 +203,33 @@ class NextcloudService
             );
         }
     }
+/*
+|--------------------------------------------------------------------------
+| Mengambil file dari Nextcloud untuk preview
+|--------------------------------------------------------------------------
+*/
+
+public function getFile(string $remotePath)
+{
+    $remotePath = trim($remotePath, '/');
+
+    $url = $this->baseUrl . '/' . $remotePath;
+
+    $response = Http::withBasicAuth(
+            $this->username,
+            $this->password
+        )
+        ->get($url);
+
+    if (! $response->successful()) {
+        throw new RuntimeException(
+            'Gagal mengambil file dari Nextcloud. HTTP '
+            . $response->status()
+            . '. '
+            . $response->body()
+        );
+    }
+
+    return $response;
+}
 }

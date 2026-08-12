@@ -7,7 +7,7 @@ use App\Filament\Resources\Requirements\Pages\EditRequirement;
 use App\Filament\Resources\Requirements\Pages\ListRequirements;
 use App\Filament\Resources\Requirements\Schemas\RequirementForm;
 use App\Filament\Resources\Requirements\Tables\RequirementsTable;
-use App\Models\Requirement;
+use App\Models\DocumentType;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 
 class RequirementResource extends Resource
 {
-    protected static ?string $model = Requirement::class;
+    protected static ?string $model = DocumentType::class;
 
     protected static ?string $navigationLabel = 'Persyaratan';
 

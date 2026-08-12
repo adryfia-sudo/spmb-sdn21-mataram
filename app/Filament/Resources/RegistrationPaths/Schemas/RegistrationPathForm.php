@@ -25,12 +25,6 @@ class RegistrationPathForm
                             ->label('Deskripsi')
                             ->rows(3),
 
-                        TextInput::make('quota')
-                            ->label('Kuota')
-                            ->numeric()
-                            ->required()
-                            ->default(0),
-
                         Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true),

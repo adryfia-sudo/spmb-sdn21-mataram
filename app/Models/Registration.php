@@ -101,4 +101,8 @@ class Registration extends Model
     {
         return $this->hasMany(StudentDocument::class);
     }
+public function verificationLogs()
+    {
+    return $this->hasMany(VerificationLog::class);
+    }
 }
