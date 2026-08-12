@@ -1,6 +1,9 @@
 FROM php:8.5-apache
 
-# 1. Gunakan Mirror Resmi Fastly & Install Dependensi Sistem Debian Trixie
+# =========================================================
+# 1. System dependencies
+# =========================================================
+
 RUN sed -i 's|deb.debian.org|cdn-fastly.deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -16,8 +19,13 @@ RUN sed -i 's|deb.debian.org|cdn-fastly.deb.debian.org|g' /etc/apt/sources.list.
         libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Kompilasi Ekstensi PHP 8.5 (mbstring & opcache dihilangkan karena sudah built-in bawaan PHP 8.5)
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+# =========================================================
+# 2. PHP extensions
+# =========================================================
+
+RUN docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
     && docker-php-ext-install \
         pdo_pgsql \
         pgsql \
@@ -26,15 +34,47 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         zip \
         exif \
         pcntl \
-        gd \
-    && a2enmod rewrite
+        gd
 
-# Composer
+# =========================================================
+# 3. Apache
+# =========================================================
+
+RUN a2enmod rewrite
+
+RUN echo "ServerName localhost" \
+    > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
+
+# Laravel VirtualHost
+RUN cat > /etc/apache2/sites-available/000-default.conf <<'EOF'
+<VirtualHost *:80>
+
+    ServerName localhost
+
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+        DirectoryIndex index.php index.html
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+</VirtualHost>
+EOF
+
+# =========================================================
+# 4. Composer
+# =========================================================
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Composer dependencies
 COPY composer.json composer.lock ./
 
 RUN composer install \
@@ -43,22 +83,18 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader \
     --ignore-platform-reqs \
-    --no-scripts \
-    -vvv
+    --no-scripts
 
-# Laravel application
+# =========================================================
+# 5. Laravel application
+# =========================================================
+
 COPY . .
 
-# Apache -> Laravel public
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+# =========================================================
+# 6. Laravel permissions
+# =========================================================
 
-RUN sed -ri \
-    -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/sites-available/*.conf \
-    /etc/apache2/apache2.conf \
-    /etc/apache2/conf-available/*.conf
-
-# Laravel directories and permissions
 RUN mkdir -p \
         storage/framework/cache \
         storage/framework/sessions \
@@ -72,7 +108,10 @@ RUN mkdir -p \
         storage \
         bootstrap/cache
 
-# PHP configuration
+# =========================================================
+# 7. PHP configuration
+# =========================================================
+
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.validate_timestamps=1'; \
@@ -83,6 +122,18 @@ RUN { \
         echo 'max_execution_time=120'; \
     } > /usr/local/etc/php/conf.d/spmb.ini
 
+# =========================================================
+# 8. Docker entrypoint
+# =========================================================
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# =========================================================
+# 9. Port
+# =========================================================
+
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

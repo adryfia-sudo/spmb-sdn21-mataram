@@ -19,7 +19,9 @@
     {{-- PROGRESS --}}
     {{-- ========================================================= --}}
 
-    <div class="progress mb-4" style="height: 24px;">
+    @if($step <= 8)
+
+       <div class="progress mb-4" style="height: 24px;">
 
         <div
             class="progress-bar"
@@ -34,7 +36,7 @@
         </div>
 
     </div>
-
+@endif
 
     {{-- ========================================================= --}}
     {{-- ISI STEP --}}
