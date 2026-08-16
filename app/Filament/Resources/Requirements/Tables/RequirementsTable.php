@@ -17,23 +17,32 @@ class RequirementsTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama Dokumen')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('registrationPaths.name')
+                    ->label('Jalur Pendaftaran')
+                    ->badge()
+                    ->separator(',')
                     ->searchable(),
 
                 IconColumn::make('is_required')
                     ->label('Wajib')
                     ->boolean(),
 
-                IconColumn::make('is_affirmation')
-                    ->label('Afirmasi')
-                    ->boolean(),
-
-                IconColumn::make('is_mutation')
-                    ->label('Domisili / Mutasi')
+                IconColumn::make('is_conditional')
+                    ->label('Kondisional')
                     ->boolean(),
             ])
+
+            ->filters([
+                //
+            ])
+
             ->recordActions([
                 EditAction::make(),
             ])
+
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

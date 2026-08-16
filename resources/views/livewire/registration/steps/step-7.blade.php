@@ -12,243 +12,125 @@
         <strong>Maksimal:</strong> 5 MB per dokumen
     </div>
 
+    @php
+        /*
+        |--------------------------------------------------------------------------
+        | Dokumen yang dikonfigurasi untuk jalur pendaftaran
+        |--------------------------------------------------------------------------
+        */
 
-    {{-- KK --}}
-    <div class="mb-4">
+        $configuredDocuments = collect($documentTypes ?? [])
+            ->filter(function ($documentType) {
+                $pivot = $documentType->registrationPaths
+                    ->firstWhere('id', $this->registration_path_id);
 
-        <label class="form-label fw-bold">
-            Kartu Keluarga
-            <span class="text-danger">*</span>
-        </label>
+                return $pivot 
+                    && (bool) $pivot->pivot->is_active
+                    && (bool) $pivot->pivot->show_in_upload;
+            });
+    @endphp
 
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_kk"
-            accept="application/pdf">
+    @forelse($configuredDocuments as $documentType)
 
-        <div class="form-text">
-            Wajib — format PDF, maksimal 5 MB.
-        </div>
+        @php
+            $pivot = $documentType->registrationPaths
+                ->firstWhere('id', $this->registration_path_id)?->pivot;
 
-        @error('document_kk')
-            <div class="text-danger small mt-1">
-                {{ $message }}
+            $isRequired = (bool) ($pivot?->is_required ?? false);
+
+            $documentProperty = match ($documentType->name) {
+                'Kartu Keluarga' => 'document_kk',
+                'Akta Kelahiran' => 'document_birth_certificate',
+                'KTP Ayah' => 'document_father_ktp',
+                'KTP Ibu' => 'document_mother_ktp',
+                'KTP Wali' => 'document_guardian_ktp',
+                'Ijazah' => 'document_diploma',
+                'Dokumen Pendukung' => 'document_supporting',
+                default => null,
+            };
+
+            $isGuardianDocument =
+                $documentType->name === 'KTP Wali';
+
+            $guardianRequired =
+                in_array(
+                    $guardian_status,
+                    ['has_guardian', 'lives_with_guardian'],
+                    true
+                );
+
+            $showDocument =
+                $documentProperty !== null &&
+                (
+                    ! $isGuardianDocument ||
+                    $guardianRequired
+                );
+        @endphp
+
+        @if($showDocument)
+
+            <div class="mb-4">
+
+                <label class="form-label fw-bold">
+
+                    {{ $documentType->name }}
+
+                    @if($isRequired || $isGuardianDocument)
+                        <span class="text-danger">*</span>
+                    @else
+                        <span class="text-muted">
+                            (Opsional)
+                        </span>
+                    @endif
+
+                </label>
+
+                <input
+                    type="file"
+                    class="form-control"
+                    wire:model="{{ $documentProperty }}"
+                    accept="application/pdf"
+                >
+
+                @if($isGuardianDocument && $guardianRequired)
+                    <div class="form-text">
+                        Wajib karena calon murid memiliki/tinggal bersama wali.
+                    </div>
+                @elseif($isRequired)
+                    <div class="form-text">
+                        Wajib — format PDF, maksimal 5 MB.
+                    </div>
+                @else
+                    <div class="form-text">
+                        Tidak wajib — format PDF, maksimal 5 MB.
+                    </div>
+                @endif
+
+                @error($documentProperty)
+                    <div class="text-danger small mt-1">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+                @if($this->{$documentProperty})
+                    <div class="text-success small mt-2">
+                        ✓ {{ $this->{$documentProperty}->getClientOriginalName() }}
+                    </div>
+                @endif
+
             </div>
-        @enderror
 
-        @if($document_kk)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_kk->getClientOriginalName() }}
-            </div>
         @endif
 
-    </div>
+    @empty
 
-
-    {{-- Akta --}}
-    <div class="mb-4">
-
-        <label class="form-label fw-bold">
-            Akta Kelahiran
-            <span class="text-danger">*</span>
-        </label>
-
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_birth_certificate"
-            accept="application/pdf">
-
-        <div class="form-text">
-            Wajib — format PDF, maksimal 5 MB.
+        <div class="alert alert-warning">
+            <strong>Belum ada persyaratan dokumen.</strong>
+            <br>
+            Dokumen untuk jalur pendaftaran ini belum dikonfigurasi oleh administrator.
+            Pendaftaran tetap dapat dilanjutkan.
         </div>
 
-        @error('document_birth_certificate')
-            <div class="text-danger small mt-1">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @if($document_birth_certificate)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_birth_certificate->getClientOriginalName() }}
-            </div>
-        @endif
-
-    </div>
-
-
-    {{-- KTP Ayah --}}
-    <div class="mb-4">
-
-        <label class="form-label fw-bold">
-            KTP Ayah
-            <span class="text-danger">*</span>
-        </label>
-
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_father_ktp"
-            accept="application/pdf">
-
-        <div class="form-text">
-            Wajib — format PDF, maksimal 5 MB.
-        </div>
-
-        @error('document_father_ktp')
-            <div class="text-danger small mt-1">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @if($document_father_ktp)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_father_ktp->getClientOriginalName() }}
-            </div>
-        @endif
-
-    </div>
-
-
-    {{-- KTP Ibu --}}
-    <div class="mb-4">
-
-        <label class="form-label fw-bold">
-            KTP Ibu
-            <span class="text-danger">*</span>
-        </label>
-
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_mother_ktp"
-            accept="application/pdf">
-
-        <div class="form-text">
-            Wajib — format PDF, maksimal 5 MB.
-        </div>
-
-        @error('document_mother_ktp')
-            <div class="text-danger small mt-1">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @if($document_mother_ktp)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_mother_ktp->getClientOriginalName() }}
-            </div>
-        @endif
-
-    </div>
-
-
-    {{-- KTP Wali --}}
-    @if(in_array($guardian_status, ['has_guardian', 'lives_with_guardian'], true))
-
-        <div class="mb-4">
-
-            <label class="form-label fw-bold">
-                KTP Wali
-                <span class="text-danger">*</span>
-            </label>
-
-            <input
-                type="file"
-                class="form-control"
-                wire:model="document_guardian_ktp"
-                accept="application/pdf">
-
-            <div class="form-text">
-                Wajib karena calon murid memiliki/tinggal bersama wali.
-            </div>
-
-            @error('document_guardian_ktp')
-                <div class="text-danger small mt-1">
-                    {{ $message }}
-                </div>
-            @enderror
-
-            @if($document_guardian_ktp)
-                <div class="text-success small mt-2">
-                    ✓ {{ $document_guardian_ktp->getClientOriginalName() }}
-                </div>
-            @endif
-
-        </div>
-
-    @endif
-
-
-    {{-- Ijazah --}}
-    <div class="mb-4">
-
-        <label class="form-label fw-bold">
-            Ijazah
-            <span class="text-muted">
-                (Opsional)
-            </span>
-        </label>
-
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_diploma"
-            accept="application/pdf">
-
-        <div class="form-text">
-            Tidak wajib. Upload jika memiliki ijazah.
-        </div>
-
-        @error('document_diploma')
-            <div class="text-danger small mt-1">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @if($document_diploma)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_diploma->getClientOriginalName() }}
-            </div>
-        @endif
-
-    </div>
-
-
-    {{-- Dokumen Pendukung --}}
-    <div class="mb-4">
-
-        <label class="form-label fw-bold">
-            Dokumen Pendukung
-            <span class="text-muted">
-                (Opsional)
-            </span>
-        </label>
-
-        <input
-            type="file"
-            class="form-control"
-            wire:model="document_supporting"
-            accept="application/pdf">
-
-        <div class="form-text">
-            Dokumen tambahan jika diperlukan.
-        </div>
-
-        @error('document_supporting')
-            <div class="text-danger small mt-1">
-                {{ $message }}
-            </div>
-        @enderror
-
-        @if($document_supporting)
-            <div class="text-success small mt-2">
-                ✓ {{ $document_supporting->getClientOriginalName() }}
-            </div>
-        @endif
-
-    </div>
+    @endforelse
 
 </div>

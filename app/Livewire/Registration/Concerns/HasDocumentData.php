@@ -49,8 +49,63 @@ trait HasDocumentData
     public function initializeDocumentData(): void
     {
         $this->documentTypes = DocumentType::query()
+            ->with([
+                'registrationPaths' => function ($query) {
+                    $query->where(
+                        'registration_paths.id',
+                        $this->registration_path_id
+                    );
+                },
+            ])
             ->orderBy('id')
             ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dokumen yang dikonfigurasi untuk jalur aktif
+    |--------------------------------------------------------------------------
+    */
+
+    protected function getConfiguredDocumentTypes()
+    {
+        if (! $this->registration_path_id) {
+            return collect();
+        }
+
+        return collect($this->documentTypes)
+            ->filter(function ($documentType) {
+                $pivot = $documentType->registrationPaths
+                    ->firstWhere(
+                        'id',
+                        $this->registration_path_id
+                    )?->pivot;
+
+                return $pivot
+                    && (bool) $pivot->is_active
+                    && (bool) $pivot->show_in_upload;
+            })
+            ->values();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mapping Jenis Dokumen ke Property Livewire
+    |--------------------------------------------------------------------------
+    */
+
+    protected function getDocumentProperty(string $documentTypeName): ?string
+    {
+        return match ($documentTypeName) {
+            'Kartu Keluarga' => 'document_kk',
+            'Akta Kelahiran' => 'document_birth_certificate',
+            'KTP Ayah' => 'document_father_ktp',
+            'KTP Ibu' => 'document_mother_ktp',
+            'KTP Wali' => 'document_guardian_ktp',
+            'Ijazah' => 'document_diploma',
+            'Dokumen Pendukung' => 'document_supporting',
+            default => null,
+        };
     }
 
     /*
@@ -61,122 +116,91 @@ trait HasDocumentData
 
     protected function validateStepSeven(): void
     {
-        $rules = [
+        $rules = [];
 
-            /*
-            |--------------------------------------------------------------------------
-            | KK
-            |--------------------------------------------------------------------------
-            */
-
-            'document_kk' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Akta Kelahiran
-            |--------------------------------------------------------------------------
-            */
-
-            'document_birth_certificate' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | KTP Ayah
-            |--------------------------------------------------------------------------
-            */
-
-            'document_father_ktp' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | KTP Ibu
-            |--------------------------------------------------------------------------
-            */
-
-            'document_mother_ktp' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Ijazah
-            |--------------------------------------------------------------------------
-            |
-            | Tidak wajib.
-            |
-            */
-
-            'document_diploma' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Dokumen Pendukung
-            |--------------------------------------------------------------------------
-            |
-            | Tidak wajib.
-            |
-            */
-
-            'document_supporting' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-            ],
-        ];
+        $configuredDocuments = $this->getConfiguredDocumentTypes();
 
         /*
         |--------------------------------------------------------------------------
-        | KTP Wali
+        | Tidak ada persyaratan
         |--------------------------------------------------------------------------
         |
-        | Wajib hanya jika calon murid:
-        | - memiliki wali
-        | - tinggal bersama wali
+        | Jika Admin belum mengatur dokumen untuk jalur tersebut,
+        | maka Step 7 tidak memiliki dokumen yang wajib divalidasi.
         |
         */
 
-        if (
-            in_array(
-                $this->guardian_status,
-                ['has_guardian', 'lives_with_guardian'],
-                true
-            )
-        ) {
-            $rules['document_guardian_ktp'] = [
-                'required',
+        if ($configuredDocuments->isEmpty()) {
+            return;
+        }
+
+        foreach ($configuredDocuments as $documentType) {
+
+            $documentProperty = $this->getDocumentProperty(
+                $documentType->name
+            );
+
+            if (! $documentProperty) {
+                continue;
+            }
+
+            $pivot = $documentType->registrationPaths
+                ->firstWhere(
+                    'id',
+                    $this->registration_path_id
+                )?->pivot;
+
+            if (! $pivot) {
+                continue;
+            }
+
+            $isRequired = (bool) $pivot->is_required;
+
+            /*
+            |--------------------------------------------------------------------------
+            | KTP Wali
+            |--------------------------------------------------------------------------
+            |
+            | KTP Wali hanya diproses jika calon murid memang
+            | memiliki atau tinggal bersama wali.
+            |
+            */
+
+            if ($documentType->name === 'KTP Wali') {
+
+                $guardianRequired = in_array(
+                    $this->guardian_status,
+                    [
+                        'has_guardian',
+                        'lives_with_guardian',
+                    ],
+                    true
+                );
+
+                if (! $guardianRequired) {
+                    $this->document_guardian_ktp = null;
+
+                    continue;
+                }
+            }
+
+            $rules[$documentProperty] = [
+                $isRequired ? 'required' : 'nullable',
                 'file',
                 'mimes:pdf',
                 'max:5120',
             ];
-        } else {
-            $this->document_guardian_ktp = null;
         }
 
-        $this->validate($rules);
+        /*
+        |--------------------------------------------------------------------------
+        | Validasi
+        |--------------------------------------------------------------------------
+        */
+
+        if (! empty($rules)) {
+            $this->validate($rules);
+        }
     }
 
     /*
@@ -189,145 +213,57 @@ trait HasDocumentData
     {
         $uploadService = app(DocumentUploadService::class);
 
-        /*
-        |--------------------------------------------------------------------------
-        | KK
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->document_kk instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'Kartu Keluarga',
-                $this->document_kk
-            );
-        }
+        $configuredDocuments = $this->getConfiguredDocumentTypes();
 
         /*
         |--------------------------------------------------------------------------
-        | Akta Kelahiran
+        | Simpan hanya dokumen yang dikonfigurasi Admin
         |--------------------------------------------------------------------------
         */
 
-        if ($this->document_birth_certificate instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
+        foreach ($configuredDocuments as $documentType) {
+
+            $documentProperty = $this->getDocumentProperty(
+                $documentType->name
+            );
+
+            if (! $documentProperty) {
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | KTP Wali
+            |--------------------------------------------------------------------------
+            */
+
+            if ($documentType->name === 'KTP Wali') {
+
+                $guardianRequired = in_array(
+                    $this->guardian_status,
+                    [
+                        'has_guardian',
+                        'lives_with_guardian',
+                    ],
+                    true
+                );
+
+                if (! $guardianRequired) {
+                    continue;
+                }
+            }
+
+            $file = $this->{$documentProperty};
+
+            if (! $file instanceof UploadedFile) {
+                continue;
+            }
+
+            $uploadService->upload(
                 $registration,
-                'Akta Kelahiran',
-                $this->document_birth_certificate
+                $documentType->id,
+                $file
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | KTP Ayah
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->document_father_ktp instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'KTP Ayah',
-                $this->document_father_ktp
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | KTP Ibu
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->document_mother_ktp instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'KTP Ibu',
-                $this->document_mother_ktp
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | KTP Wali
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            in_array(
-                $this->guardian_status,
-                ['has_guardian', 'lives_with_guardian'],
-                true
-            )
-            && $this->document_guardian_ktp instanceof UploadedFile
-        ) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'KTP Wali',
-                $this->document_guardian_ktp
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Ijazah
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->document_diploma instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'Ijazah',
-                $this->document_diploma
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dokumen Pendukung
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->document_supporting instanceof UploadedFile) {
-            $this->uploadDocument(
-                $uploadService,
-                $registration,
-                'Dokumen Pendukung',
-                $this->document_supporting
-            );
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Upload Satu Dokumen
-    |--------------------------------------------------------------------------
-    */
-
-    protected function uploadDocument(
-        DocumentUploadService $uploadService,
-        Registration $registration,
-        string $documentTypeName,
-        UploadedFile $file
-    ): void {
-        $documentType = DocumentType::query()
-            ->where('name', $documentTypeName)
-            ->first();
-
-        if (! $documentType) {
-            throw new \RuntimeException(
-                "Jenis dokumen '{$documentTypeName}' belum tersedia."
-            );
-        }
-
-        $uploadService->upload(
-            $registration,
-            $documentType->id,
-            $file
-        );
     }
 }

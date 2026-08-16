@@ -3,39 +3,55 @@
 namespace App\Filament\Resources\Requirements\Pages;
 
 use App\Filament\Resources\Requirements\RequirementResource;
-use App\Models\RegistrationPath;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateRequirement extends CreateRecord
 {
     protected static string $resource = RequirementResource::class;
 
+    protected array $pathRequirements = [];
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        unset($data['registration_paths']);
+        $this->pathRequirements = $data['path_requirements'] ?? [];
+
+        unset($data['path_requirements']);
 
         return $data;
     }
 
     protected function afterCreate(): void
     {
-        $paths = $this->data['registration_paths'] ?? [];
+        $this->record->registrationPaths()->sync(
+            collect($this->pathRequirements)
+                ->filter(
+                    fn (array $item): bool =>
+                        ! empty($item['registration_path_id'])
+                )
+                ->mapWithKeys(
+                    fn (array $item): array => [
+                        $item['registration_path_id'] => [
+                            'is_required' =>
+                                $item['is_required'] ?? false,
 
-        if (empty($paths)) {
-            return;
-        }
+                            'is_verification_required' =>
+                                $item['is_verification_required'] ?? true,
 
-        $documentType = $this->record;
+                            'is_active' =>
+                                $item['is_active'] ?? true,
 
-        foreach ($paths as $pathId) {
-            RegistrationPath::findOrFail($pathId)
-                ->requirements()
-                ->syncWithoutDetaching([
-                    $documentType->id => [
-                        'is_required' => (bool) ($this->data['is_required'] ?? false),
-                        'is_active' => true,
-                    ],
-                ]);
-        }
+                            'show_in_upload' =>
+                                $item['show_in_upload'] ?? true,
+
+                            'show_in_proof' =>
+                                $item['show_in_proof'] ?? true,
+
+                            'notes' =>
+                                $item['notes'] ?? null,
+                        ],
+                    ]
+                )
+                ->all()
+        );
     }
 }

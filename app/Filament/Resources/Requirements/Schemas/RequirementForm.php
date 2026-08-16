@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Requirements\Schemas;
 
 use App\Models\RegistrationPath;
-use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -19,33 +21,63 @@ class RequirementForm
                     ->required()
                     ->maxLength(255),
 
-                CheckboxList::make('registration_paths')
-                    ->label('Jalur Pendaftaran')
-                    ->options(
-                        fn (): array => RegistrationPath::query()
-                            ->where('is_active', true)
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->all()
-                    )
+                Repeater::make('path_requirements')
+                    ->label('Pengaturan Persyaratan per Jalur')
+                    ->schema([
+                        Select::make('registration_path_id')
+                            ->label('Jalur Pendaftaran')
+                            ->options(
+                                fn (): array => RegistrationPath::query()
+                                    ->where('is_active', true)
+                                    ->orderBy('sort_order')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all()
+                            )
+                            ->required()
+                            ->distinct(),
+
+                        Toggle::make('is_required')
+                            ->label('Wajib')
+                            ->default(true),
+
+                        Toggle::make('is_verification_required')
+                            ->label('Perlu Verifikasi')
+                            ->default(true),
+
+                        Toggle::make('is_active')
+                            ->label('Aktif')
+                            ->default(true),
+
+                        Toggle::make('show_in_upload')
+                            ->label('Tampilkan di Upload Dokumen')
+                            ->default(true),
+
+                        Toggle::make('show_in_proof')
+                            ->label('Tampilkan di Bukti Pendaftaran')
+                            ->default(true),
+
+                        Textarea::make('notes')
+                            ->label('Catatan')
+                            ->rows(2)
+                            ->maxLength(1000),
+                    ])
                     ->columns(2)
+                    ->defaultItems(0)
+                    ->addActionLabel('Tambah Jalur')
+                    ->reorderable(false)
+                    ->collapsible()
+                    ->itemLabel(
+                        fn (array $state): ?string =>
+                            isset($state['registration_path_id'])
+                                ? RegistrationPath::find(
+                                    $state['registration_path_id']
+                                )?->name
+                                : null
+                    )
                     ->helperText(
-                        'Pilih jalur yang menggunakan dokumen ini sebagai persyaratan.'
+                        'Satu dokumen dapat digunakan pada beberapa jalur dengan pengaturan yang berbeda.'
                     ),
-
-                Toggle::make('is_required')
-                    ->label('Wajib')
-                    ->helperText(
-                        'Jika aktif, dokumen wajib diunggah untuk jalur yang dipilih.'
-                    )
-                    ->default(false),
-
-                Toggle::make('is_conditional')
-                    ->label('Kondisional')
-                    ->helperText(
-                        'Dokumen hanya diwajibkan jika kondisi tertentu terpenuhi.'
-                    )
-                    ->default(false),
             ]);
     }
 }

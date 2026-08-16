@@ -26,7 +26,10 @@ class RegistrationPath extends Model
             'document_type_id'
         )->withPivot([
             'is_required',
+            'is_verification_required',
             'is_active',
+            'show_in_upload',
+            'show_in_proof',
             'notes',
         ])->withTimestamps();
     }

@@ -22,11 +22,16 @@ class DocumentType extends Model
     {
         return $this->belongsToMany(
             RegistrationPath::class,
-            'registration_path_requirements'
+            'registration_path_requirements',
+            'document_type_id',
+            'registration_path_id'
         )->withPivot([
             'is_required',
+            'is_verification_required',
             'is_active',
+            'show_in_upload',
+            'show_in_proof',
             'notes',
-        ]);
+        ])->withTimestamps();
     }
 }

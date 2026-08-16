@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Registrations\Pages\ViewRegistration;
+use App\Filament\Resources\Registrations\Schemas\RegistrationInfolist;
 
 class RegistrationResource extends Resource
 {
@@ -25,6 +27,11 @@ class RegistrationResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return RegistrationForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+    return RegistrationInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -44,6 +51,7 @@ class RegistrationResource extends Resource
         return [
             'index' => ListRegistrations::route('/'),
             'create' => CreateRegistration::route('/create'),
+            'view' => ViewRegistration::route('/{record}'),
             'edit' => EditRegistration::route('/{record}/edit'),
         ];
     }
