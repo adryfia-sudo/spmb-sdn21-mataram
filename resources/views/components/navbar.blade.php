@@ -26,40 +26,35 @@
 
             <ul class="navbar-nav ms-auto">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#profil">
-                        Profil
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('front.profile') }}">
+        Profil
+    </a>
+</li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#jadwal">
-                        Jadwal
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('front.schedule') }}">
+        Jadwal
+    </a>
+</li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#jalur">
-                        Jalur
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('front.paths') }}">
+        Jalur
+    </a>
+</li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#syarat">
-                        Persyaratan
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('front.requirements') }}">
+        Persyaratan
+    </a>
+</li>
 
-                <li class="nav-item ms-3">
-
-                    <a class="btn btn-primary"
-                       href="{{ route('registration.create') }}">
-
-                        Daftar Sekarang
-
-                    </a>
-
-                </li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('registration.status') }}">
+        Cek Status
+    </a>
+</li>
 
             </ul>
 

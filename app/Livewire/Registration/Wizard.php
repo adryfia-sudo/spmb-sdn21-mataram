@@ -383,13 +383,20 @@ public function nextStep(): void
     | Step 2 - Data Peserta
     |--------------------------------------------------------------------------
     */
-    if ($this->step === 2) {
-        $this->validateStepTwo();
+if ($this->step === 2) {
+    $this->validateStepTwo();
 
-        $this->step = 3;
+    $this->step = 3;
 
-        return;
-    }
+    Log::info('SPMB STEP BERUBAH KE 3', [
+        'step' => $this->step,
+        'city' => $this->city,
+        'district' => $this->district,
+        'village' => $this->village,
+    ]);
+
+    return;
+}
 
     /*
     |--------------------------------------------------------------------------

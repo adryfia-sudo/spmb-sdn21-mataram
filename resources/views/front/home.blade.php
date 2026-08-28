@@ -35,14 +35,19 @@
 
         @endif
 
-        <div class="mt-3">
+<div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
 
-            <a href="{{ route('registration.create') }}"
-                class="btn btn-warning btn-lg">
-                Daftar Sekarang
-            </a>
+    <a href="{{ route('registration.create') }}"
+        class="btn btn-warning btn-lg">
+        Daftar Sekarang
+    </a>
 
-        </div>
+    <a href="{{ route('registration.status') }}"
+        class="btn btn-primary btn-lg">
+        Cek Status Pendaftaran
+    </a>
+
+</div>
 
     </div>
 </section>

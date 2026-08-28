@@ -28,27 +28,22 @@ trait HasAddressData
 
     public $longitude = null;
 
-    public $cities = [];
+    public array $cities = [];
 
-    public $districts = [];
+    public array $districts = [];
 
-    public $villages = [];
+    public array $villages = [];
 
-    /**
-     * Load Kabupaten/Kota NTB
-     */
     public function loadCities(): void
     {
         $this->cities = Region::query()
             ->where('level', 'regency')
             ->where('parent_code', '52')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->toArray();
     }
 
-    /**
-     * Ketika Kabupaten/Kota berubah
-     */
     public function updatedCity($value): void
     {
         $this->district = '';
@@ -65,16 +60,13 @@ trait HasAddressData
             ->where('level', 'district')
             ->where('parent_code', $value)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->toArray();
     }
 
-    /**
-     * Ketika Kecamatan berubah
-     */
     public function updatedDistrict($value): void
     {
         $this->village = '';
-
         $this->villages = [];
 
         if (! $value) {
@@ -85,75 +77,26 @@ trait HasAddressData
             ->where('level', 'village')
             ->where('parent_code', $value)
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->toArray();
     }
 
-    /**
-     * Validasi Step 3
-     */
     protected function validateStepThree(): void
     {
         $this->validate([
-            'city' => [
-                'required',
-                'exists:regions,code',
-            ],
-
-            'district' => [
-                'required',
-                'exists:regions,code',
-            ],
-
-            'village' => [
-                'required',
-                'exists:regions,code',
-            ],
-
-            'address' => [
-                'required',
-                'string',
-                'max:500',
-            ],
-
-            'rt' => [
-                'nullable',
-                'string',
-                'max:5',
-            ],
-
-            'rw' => [
-                'nullable',
-                'string',
-                'max:5',
-            ],
-
-            'hamlet' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'postal_code' => [
-                'nullable',
-                'string',
-                'max:10',
-            ],
-
-            'latitude' => [
-                'nullable',
-                'numeric',
-            ],
-
-            'longitude' => [
-                'nullable',
-                'numeric',
-            ],
+            'city' => ['required', 'exists:regions,code'],
+            'district' => ['required', 'exists:regions,code'],
+            'village' => ['required', 'exists:regions,code'],
+            'address' => ['required', 'string', 'max:500'],
+            'rt' => ['nullable', 'string', 'max:5'],
+            'rw' => ['nullable', 'string', 'max:5'],
+            'hamlet' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
         ]);
     }
 
-    /**
-     * Inisialisasi data wilayah ketika component pertama kali dibuka.
-     */
     public function initializeAddressData(): void
     {
         $this->loadCities();

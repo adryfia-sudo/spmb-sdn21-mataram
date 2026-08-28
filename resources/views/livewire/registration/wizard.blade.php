@@ -1,204 +1,89 @@
-<div class="container py-4">
-
-    {{-- ========================================================= --}}
-    {{-- JUDUL --}}
-    {{-- ========================================================= --}}
+<div class="container py-4" wire:key="wizard-step-container-{{ $step }}">
 
     <div class="mb-4">
-        <h2 class="mb-1">
-            Pendaftaran Murid Baru
-        </h2>
-
-        <p class="text-muted mb-0">
-            SPMB SD Negeri 21 Mataram
-        </p>
+        <h2 class="mb-1">Pendaftaran Murid Baru</h2>
+        <p class="text-muted mb-0">SPMB SD Negeri 21 Mataram</p>
     </div>
 
-
-    {{-- ========================================================= --}}
-    {{-- PROGRESS STEP 1 - 8 --}}
-    {{-- ========================================================= --}}
-
-    @if($step <= 8)
-
+    @if($step >= 1 && $step <= 8)
+        {{-- Progress Bar --}}
         <div class="progress mb-4" style="height: 24px;">
-
-            <div
-                class="progress-bar"
-                role="progressbar"
-                style="width: {{ ($step / 8) * 100 }}%;"
-                aria-valuenow="{{ $step }}"
-                aria-valuemin="1"
-                aria-valuemax="8">
-
+            <div class="progress-bar" role="progressbar" style="width: {{ ($step / 8) * 100 }}%;" aria-valuenow="{{ $step }}" aria-valuemin="1" aria-valuemax="8">
                 Langkah {{ $step }} dari 8
-
             </div>
-
         </div>
 
+        {{-- Konten Step Dinamis --}}
+        <div id="step-content-container">
+            @if($step === 1)
+                @include('livewire.registration.steps.step-1')
+            @elseif($step === 2)
+                @include('livewire.registration.steps.step-2')
+            @elseif($step === 3)
+                @include('livewire.registration.steps.step-3')
+            @elseif($step === 4)
+                @include('livewire.registration.steps.step-4')
+            @elseif($step === 5)
+                @include('livewire.registration.steps.step-5')
+            @elseif($step === 6)
+                @include('livewire.registration.steps.step-6')
+            @elseif($step === 7)
+                @include('livewire.registration.steps.step-7')
+            @elseif($step === 8)
+                @include('livewire.registration.steps.step-8')
+            @endif
+        </div>
 
-        {{-- ===================================================== --}}
-        {{-- ISI STEP 1 - 8 --}}
-        {{-- ===================================================== --}}
+        {{-- Navigasi Tombol (Selalu tampil di bawah step 1-8) --}}
+        <div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                wire:click="previousStep"
+                @disabled($step === 1)>
+                ← Kembali
+            </button>
 
-        @includeIf('livewire.registration.steps.step-' . $step)
-
-
-        {{-- ===================================================== --}}
-        {{-- NAVIGASI STEP 1 - 7 --}}
-        {{-- ===================================================== --}}
-
-        @if($step < 8)
-
-            <div class="mt-4 d-flex justify-content-between">
-
-                {{-- Tombol Kembali --}}
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    wire:click="previousStep"
-                    @disabled($step == 1)>
-
-                    ← Kembali
-
-                </button>
-
-
-                {{-- Tombol Lanjut --}}
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    wire:click="nextStep"
-                    wire:loading.attr="disabled">
-
-                    <span wire:loading.remove>
-                        Lanjut
-                    </span>
-
-                    <span wire:loading>
-                        Memproses...
-                    </span>
-
-                </button>
-
-            </div>
-
-        @endif
-
+            <button
+                type="button"
+                class="btn btn-primary"
+                wire:click="nextStep"
+                wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="nextStep">
+                    @if($step === 8) Kirim Pendaftaran @else Lanjut → @endif
+                </span>
+                <span wire:loading wire:target="nextStep">Memproses...</span>
+            </button>
+        </div>
     @endif
 
-
-    {{-- ========================================================= --}}
-    {{-- STEP 9 - PENDAFTARAN BERHASIL --}}
-    {{-- ========================================================= --}}
-
+    {{-- Step 9 (Halaman Selesai) --}}
     @if($step === 9)
-
         <div class="card border-success shadow-sm">
-
             <div class="card-body text-center py-5">
-
-                {{-- Icon --}}
-                <div class="mb-4">
-
-                    <span
-                        class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white"
-                        style="width: 70px; height: 70px; font-size: 35px;">
-
-                        ✓
-
-                    </span>
-
-                </div>
-
-
-                {{-- Judul --}}
-                <h3 class="text-success fw-bold mb-3">
-                    Pendaftaran Berhasil
-                </h3>
-
-
-                <p class="text-muted mb-4">
-                    Pendaftaran peserta didik berhasil disimpan.
-                </p>
-
-
-                {{-- Pesan sukses --}}
-                @if(session('registration_success'))
-
-                    <div class="alert alert-success">
-                        {{ session('registration_success') }}
-                    </div>
-
-                @endif
-
-
-                {{-- Nomor pendaftaran --}}
+                <h3 class="text-success fw-bold mb-3">Pendaftaran Berhasil</h3>
+                <p class="text-muted mb-4">Pendaftaran peserta didik berhasil disimpan.</p>
+                
                 @if($registration)
-
-                    <div class="alert alert-info mb-4">
-
-                        <div class="small text-muted mb-1">
-                            Nomor Pendaftaran
-                        </div>
-
-                        <div class="fs-3 fw-bold">
-                            {{ $registration->registration_number }}
-                        </div>
-
+                    <div class="alert alert-info d-inline-block px-4 py-3 mb-4">
+                        <div class="small text-muted mb-1">Nomor Pendaftaran</div>
+                        <div class="fs-3 fw-bold">{{ $registration->registration_number }}</div>
                     </div>
-
-
-                    {{-- ================================================= --}}
-                    {{-- TOMBOL BUKTI PENDAFTARAN --}}
-                    {{-- ================================================= --}}
-
-                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                        {{-- Preview --}}
-                        <a
-                            href="{{ route('registration.proof.preview', $registration) }}"
-                            target="_blank"
-                            class="btn btn-primary">
-
-                            👁️ Preview Bukti Pendaftaran
-
-                        </a>
-
-
-                        {{-- Download --}}
-                        <a
-                            href="{{ route('registration.proof.download', $registration) }}"
-                            class="btn btn-success">
-
-                            ⬇️ Download Bukti Pendaftaran
-
-                        </a>
-
-                    </div>
-
-
-                    <div class="mt-3 text-muted small">
-
-                        Silakan simpan atau cetak bukti pendaftaran ini.
-
-                    </div>
-
-                @else
-
-                    <div class="alert alert-warning">
-
-                        Data pendaftaran tidak ditemukan.
-
-                    </div>
-
                 @endif
 
+                <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+                    @if($registration)
+                        <a href="{{ route('registration.download-pdf', $registration->id) }}" class="btn btn-success btn-lg px-4" target="_blank">
+                            <i class="bi bi-download me-2"></i> Download Bukti Pendaftaran
+                        </a>
+                    @endif
+
+                    <a href="{{ route('registration.check-status') }}" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-search me-2"></i> Cek Status Pendaftaran
+                    </a>
+                </div>
             </div>
-
         </div>
-
     @endif
 
 </div>
