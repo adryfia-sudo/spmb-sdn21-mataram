@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
           $this->call([
               MasterReferenceSeeder::class,
               RegistrationPathSeeder::class,
+	      RegionSeeder::class,
         ]);
     }
 }
