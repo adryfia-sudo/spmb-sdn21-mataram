@@ -10,8 +10,8 @@ window.initLeafletMap = function (wire) {
 
         init() {
             this.$nextTick(() => {
-                const defaultLat = parseFloat(this.latitude) || -8.5833;
-                const defaultLng = parseFloat(this.longitude) || 116.1167;
+                const defaultLat = parseFloat(this.latitude) ||  -8.5653;
+                const defaultLng = parseFloat(this.longitude) || 116.0766;
 
                 this.map = L.map(this.$refs.map).setView([defaultLat, defaultLng], 15);
 

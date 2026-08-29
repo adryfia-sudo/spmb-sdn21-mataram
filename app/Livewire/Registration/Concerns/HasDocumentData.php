@@ -87,6 +87,35 @@ trait HasDocumentData
             })
             ->values();
     }
+    /*
+    |--------------------------------------------------------------------------
+    | Persyaratan yang harus dibawa saat verifikasi
+    |--------------------------------------------------------------------------
+    |
+    | Persyaratan ini tidak di-upload pada Step 7,
+    | tetapi wajib dibawa ke sekolah untuk proses verifikasi.
+    |
+    */
+    protected function getVerificationDocumentTypes()
+    {
+    if (! $this->registration_path_id) {
+        return collect();
+    }
+
+    return collect($this->documentTypes)
+        ->filter(function ($documentType) {
+            $pivot = $documentType->registrationPaths
+                ->firstWhere(
+                    'id',
+                    $this->registration_path_id
+                )?->pivot;
+
+            return $pivot
+                && (bool) $pivot->is_active
+                && (bool) $pivot->is_verification_required;
+        })
+        ->values();
+}
 
     /*
     |--------------------------------------------------------------------------

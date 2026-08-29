@@ -11,7 +11,7 @@ class RegistrationProofController extends Controller
     public function preview(Registration $registration)
     {
         $registration->load([
-            'registrationPath',
+            'registrationPath.requirements',
             'academicYear',
             'registrationPeriod',
             'address',
@@ -34,7 +34,7 @@ class RegistrationProofController extends Controller
     public function download(Registration $registration)
     {
         $registration->load([
-            'registrationPath',
+            'registrationPath.requirements',
             'academicYear',
             'registrationPeriod',
             'address',

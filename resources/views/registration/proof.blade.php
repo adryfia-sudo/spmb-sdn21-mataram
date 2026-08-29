@@ -9,64 +9,126 @@
 
     <style>
         @page {
-            margin: 20mm;
+            margin: 15mm 18mm;
         }
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #222;
+            margin: 0;
+            padding: 0;
         }
 
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
         .header {
-            text-align: center;
+            width: 100%;
             border-bottom: 3px solid #222;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-table td {
+            border: none;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .logo-left,
+        .logo-right {
+            width: 18%;
+            text-align: center;
+        }
+
+        .header-center {
+            width: 64%;
+            text-align: center;
+        }
+
+        .logo-left img,
+        .logo-right img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+        }
+
+        .institution {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 3px;
         }
 
         .school-name {
             font-size: 18px;
             font-weight: bold;
-        }
-
-        .institution {
-            font-size: 14px;
-            font-weight: bold;
+            margin-bottom: 5px;
         }
 
         .address {
-            font-size: 10px;
-            margin-top: 5px;
+            font-size: 9px;
+            line-height: 1.4;
         }
+
+        /* =========================================================
+           JUDUL
+        ========================================================= */
 
         .title {
             text-align: center;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: bold;
-            margin: 20px 0 5px;
+            margin: 12px 0 4px;
         }
 
         .subtitle {
             text-align: center;
-            font-size: 11px;
-            margin-bottom: 20px;
+            font-size: 10px;
+            margin-bottom: 12px;
         }
+
+        /* =========================================================
+           NOMOR PENDAFTARAN
+        ========================================================= */
 
         .registration-number {
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            margin: 15px 0 25px;
+            margin: 10px 0 18px;
         }
 
-        table {
+        /* =========================================================
+           SECTION
+        ========================================================= */
+
+        .section {
+            background: #eeeeee;
+            border: 1px solid #d5d5d5;
+            font-weight: bold;
+            padding: 7px;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        /* =========================================================
+           DATA PESERTA
+        ========================================================= */
+
+        .data-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        td {
-            padding: 7px 5px;
+        .data-table td {
+            padding: 5px 4px;
             vertical-align: top;
         }
 
@@ -75,114 +137,258 @@
             font-weight: bold;
         }
 
-        .section {
-            background: #f1f1f1;
-            font-weight: bold;
-            padding: 8px;
-            margin-top: 15px;
-            margin-bottom: 5px;
-        }
+        /* =========================================================
+           PERSYARATAN
+        ========================================================= */
 
         .documents {
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
-        .document-row {
-            border-bottom: 1px solid #ddd;
-            padding: 6px 0;
+        .documents ol {
+            margin-top: 3px;
+            margin-bottom: 0;
+            padding-left: 25px;
         }
+
+        .documents li {
+            padding: 3px 0;
+        }
+
+        .document-note {
+            font-size: 9px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* =========================================================
+           CATATAN
+        ========================================================= */
+
+        .notes {
+            margin-top: 18px;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        /* =========================================================
+           FOOTER / TANDA TANGAN
+        ========================================================= */
 
         .footer {
-            margin-top: 40px;
+            margin-top: 25px;
+            width: 100%;
         }
 
         .verification {
             width: 45%;
             margin-left: auto;
             text-align: center;
+            font-size: 10px;
         }
 
         .signature-space {
-            height: 60px;
+            height: 55px;
         }
 
-        .notes {
-            margin-top: 25px;
-            font-size: 10px;
+        /* =========================================================
+           PRINT
+        ========================================================= */
+
+        .no-border {
+            border: none !important;
         }
     </style>
 </head>
 
 <body>
 
-    {{-- HEADER --}}
+    {{-- =========================================================
+         HEADER
+    ========================================================== --}}
 
-    <div class="header">
+   @php
+    $governmentLogo = null;
+    $schoolLogo = null;
 
-        @if($template?->school_name)
-            <div class="school-name">
-                {{ $template->school_name }}
-            </div>
-        @endif
+    /*
+    |--------------------------------------------------------------------------
+    | Logo Pemerintah
+    |--------------------------------------------------------------------------
+    */
 
-        @if($template?->institution_name)
-            <div class="institution">
-                {{ $template->institution_name }}
-            </div>
-        @endif
+    if ($template?->logo_government) {
+        $governmentLogoPath = storage_path(
+            'app/public/' . $template->logo_government
+        );
 
-        @if($template?->address)
-            <div class="address">
-                {{ $template->address }}
-            </div>
-        @endif
+        if (is_file($governmentLogoPath)) {
+            $extension = strtolower(
+                pathinfo($governmentLogoPath, PATHINFO_EXTENSION)
+            );
 
-        @if($template?->phone || $template?->email)
-            <div class="address">
-                @if($template?->phone)
-                    Telp. {{ $template->phone }}
+            $mime = match ($extension) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                default => null,
+            };
+
+            if ($mime) {
+                $governmentLogo =
+                    'data:' . $mime . ';base64,' .
+                    base64_encode(
+                        file_get_contents($governmentLogoPath)
+                    );
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logo Sekolah
+    |--------------------------------------------------------------------------
+    */
+
+    if ($template?->logo_school) {
+        $schoolLogoPath = storage_path(
+            'app/public/' . $template->logo_school
+        );
+
+        if (is_file($schoolLogoPath)) {
+            $extension = strtolower(
+                pathinfo($schoolLogoPath, PATHINFO_EXTENSION)
+            );
+
+            $mime = match ($extension) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                default => null,
+            };
+
+            if ($mime) {
+                $schoolLogo =
+                    'data:' . $mime . ';base64,' .
+                    base64_encode(
+                        file_get_contents($schoolLogoPath)
+                    );
+            }
+        }
+    }
+
+    @endphp
+
+
+   <div class="header">
+
+    <table class="header-table">
+        <tr>
+
+            {{-- LOGO PEMERINTAH KOTA --}}
+            <td class="logo-left">
+                @if($governmentLogo)
+                    <img
+                        src="{{ $governmentLogo }}"
+                        alt="Logo Pemerintah Kota Mataram"
+                    >
+                @endif
+            </td>
+
+            {{-- IDENTITAS SEKOLAH --}}
+            <td class="header-center">
+
+                @if($template?->institution_name)
+                    <div class="institution">
+                        {{ $template->institution_name }}
+                    </div>
                 @endif
 
-                @if($template?->phone && $template?->email)
-                    &nbsp; | &nbsp;
+                @if($template?->school_name)
+                    <div class="school-name">
+                        {{ $template->school_name }}
+                    </div>
                 @endif
 
-                @if($template?->email)
-                    {{ $template->email }}
+                @if($template?->address)
+                    <div class="address">
+                        {{ $template->address }}
+                    </div>
                 @endif
-            </div>
-        @endif
 
-    </div>
+                @if($template?->phone || $template?->email)
+                    <div class="address">
+
+                        @if($template?->phone)
+                            Telp. {{ $template->phone }}
+                        @endif
+
+                        @if($template?->phone && $template?->email)
+                            &nbsp; | &nbsp;
+                        @endif
+
+                        @if($template?->email)
+                            {{ $template->email }}
+                        @endif
+
+                    </div>
+                @endif
+
+            </td>
+
+            {{-- LOGO SEKOLAH --}}
+            <td class="logo-right">
+                @if($schoolLogo)
+                    <img
+                        src="{{ $schoolLogo }}"
+                        alt="Logo SDN 21 Mataram"
+                    >
+                @endif
+            </td>
+
+        </tr>
+    </table>
+
+</div>
 
 
-    {{-- TITLE --}}
+    {{-- =========================================================
+         JUDUL
+    ========================================================== --}}
 
     <div class="title">
         {{ $template?->document_title ?? 'BUKTI PENDAFTARAN' }}
     </div>
 
     @if($template?->document_subtitle)
+
         <div class="subtitle">
             {{ $template->document_subtitle }}
         </div>
+
     @endif
 
 
-    {{-- NOMOR PENDAFTARAN --}}
+    {{-- =========================================================
+         NOMOR PENDAFTARAN
+    ========================================================== --}}
 
     <div class="registration-number">
         {{ $registration->registration_number }}
     </div>
 
 
-    {{-- DATA PENDAFTAR --}}
+    {{-- =========================================================
+         DATA PESERTA DIDIK
+    ========================================================== --}}
 
     <div class="section">
         DATA PESERTA DIDIK
     </div>
 
-    <table>
+    <table class="data-table">
 
         <tr>
             <td class="label">
@@ -216,7 +422,9 @@
                 Jenis Kelamin
             </td>
             <td>
-                : {{ $registration->gender === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                : {{ $registration->gender === 'L'
+                    ? 'Laki-laki'
+                    : 'Perempuan' }}
             </td>
         </tr>
 
@@ -227,7 +435,8 @@
             <td>
                 :
                 {{ $registration->birth_place }},
-                {{ optional($registration->birth_date)->translatedFormat('d F Y') }}
+                {{ optional($registration->birth_date)
+                    ->translatedFormat('d F Y') }}
             </td>
         </tr>
 
@@ -249,64 +458,90 @@
             </td>
         </tr>
 
-        <tr>
-            <td class="label">
-                Status
-            </td>
-            <td>
-                : {{ ucfirst($registration->status) }}
-            </td>
-        </tr>
-
     </table>
 
 
-    {{-- DOKUMEN --}}
+{{-- =========================================================
+     PERSYARATAN WAJIB
+========================================================== --}}
 
-    @php
-        $proofDocuments = $registration->documents
-            ->filter(function ($document) use ($registration) {
+@php
+    $requiredRequirements = $registration->registrationPath?->requirements
+        ?->filter(function ($requirement) use ($registration) {
 
-                $pivot = $document->documentType
-                    ?->registrationPaths
-                    ?->firstWhere('id', $registration->registration_path_id)
-                    ?->pivot;
+            /*
+             * Semua persyaratan yang ditampilkan harus:
+             * - aktif
+             * - dikonfigurasi tampil di bukti pendaftaran
+             */
+            if (
+                ! (bool) $requirement->pivot->is_active ||
+                ! (bool) $requirement->pivot->show_in_proof
+            ) {
+                return false;
+            }
 
-                return $pivot
-                    && (bool) $pivot->show_in_proof;
-            });
-    @endphp
+            /*
+             * KTP Wali adalah pengecualian.
+             *
+             * KTP Wali ditampilkan jika peserta memiliki
+             * data wali pada Step 6, walaupun is_required = 0.
+             */
+            if (
+                mb_strtolower(trim($requirement->name)) === 'ktp wali'
+            ) {
+                return $registration->guardian !== null;
+            }
 
-    @if($proofDocuments->isNotEmpty())
+            /*
+             * Persyaratan lainnya hanya ditampilkan
+             * jika ditandai sebagai wajib.
+             */
+            return (bool) $requirement->pivot->is_required;
+        })
+        ?? collect();
+@endphp
 
-        <div class="section">
-            DOKUMEN YANG DIUNGGAH
-        </div>
+@if($requiredRequirements->isNotEmpty())
 
-        <div class="documents">
+    <div class="section">
+        PERSYARATAN WAJIB YANG HARUS DIBAWA KE SEKOLAH
+    </div>
 
-            @foreach($proofDocuments as $document)
+    <div class="documents">
 
-                <div class="document-row">
+        <ol style="margin-top: 5px; padding-left: 25px;">
+
+            @foreach($requiredRequirements as $requirement)
+
+                <li style="padding: 4px 0;">
 
                     <strong>
-                        {{ $document->documentType?->name }}
+                        {{ $requirement->name }}
                     </strong>
 
-                    <br>
+                    @if($requirement->pivot->notes)
+                        <br>
 
-                    {{ $document->original_name }}
+                        <span style="font-size: 10px;">
+                            {{ $requirement->pivot->notes }}
+                        </span>
+                    @endif
 
-                </div>
+                </li>
 
             @endforeach
 
-        </div>
+        </ol>
 
-    @endif
+    </div>
+
+@endif
 
 
-    {{-- CATATAN --}}
+    {{-- =========================================================
+         CATATAN
+    ========================================================== --}}
 
     @if($template?->notes)
 
@@ -323,7 +558,9 @@
     @endif
 
 
-    {{-- VERIFIKATOR --}}
+    {{-- =========================================================
+         VERIFIKATOR
+    ========================================================== --}}
 
     <div class="footer">
 
@@ -339,17 +576,24 @@
             <div class="signature-space"></div>
 
             <strong>
-                {{ $template?->verification_name ?? '........................................' }}
+                {{ $template?->verification_name
+                    ?? '........................................' }}
             </strong>
 
             @if($template?->verification_nip)
+
                 <br>
+
                 NIP. {{ $template->verification_nip }}
+
             @endif
 
             @if($template?->verification_position)
+
                 <br>
+
                 {{ $template->verification_position }}
+
             @endif
 
         </div>

@@ -531,22 +531,7 @@ protected function validateStepEight(): void
 
     \Log::info('SPMB SUBMIT: step 8 lolos');
 
-    // lanjutkan kode Anda...{
-        /*
-        |--------------------------------------------------------------------------
-        | Validasi terakhir
-        |--------------------------------------------------------------------------
-        */
-
-        /*$this->validateStepOne();
-        $this->validateStepTwo();
-        $this->validateStepThree();
-        $this->validateStepFour();
-        $this->validateStepFive();
-        $this->validateStepSix();
-        $this->validateStepSeven();
-        $this->validateStepEight();*/
-        /*
+        /*    
         |--------------------------------------------------------------------------
         | Ambil Tahun Pelajaran aktif
         |--------------------------------------------------------------------------
@@ -784,10 +769,21 @@ protected function validateStepEight(): void
 
                 $this->saveFatherData($registration);
 
+Log::info('SPMB SUBMIT: saveFatherData selesai', [
+    'registration_id' => $registration->id,
+]);
+
                 $this->saveMotherData($registration);
+
+Log::info('SPMB SUBMIT: saveMotherData selesai', [
+    'registration_id' => $registration->id,
+]);
 
                 $this->saveGuardianData($registration);
 
+Log::info('SPMB SUBMIT: saveGuardianData selesai', [
+    'registration_id' => $registration->id,
+]);
 
                 /*
                 |--------------------------------------------------------------------------

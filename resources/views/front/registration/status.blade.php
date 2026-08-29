@@ -326,6 +326,18 @@
 
                     </span>
                 </div>
+<div style="margin-top: 20px; text-align: center;">
+
+    <a
+        href="{{ route('registration.proof.download', $registration) }}"
+        class="button"
+        target="_blank"
+        rel="noopener"
+    >
+        Download Bukti Pendaftaran
+    </a>
+
+</div>
 
             </div>
 

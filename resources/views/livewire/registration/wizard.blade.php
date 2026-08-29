@@ -73,12 +73,16 @@
 
                 <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
                     @if($registration)
-                        <a href="{{ route('registration.download-pdf', $registration->id) }}" class="btn btn-success btn-lg px-4" target="_blank">
-                            <i class="bi bi-download me-2"></i> Download Bukti Pendaftaran
-                        </a>
+                        <a
+                            href="{{ route('registration.proof.download', $registration) }}"
+                            class="btn btn-success btn-lg px-4"
+                            target="_blank"
+                         >
+                            ⬇️ Download Bukti Pendaftaran
+                         </a>
                     @endif
 
-                    <a href="{{ route('registration.check-status') }}" class="btn btn-outline-primary btn-lg px-4">
+                    <a href="{{ route('registration.status') }}" class="btn btn-outline-primary btn-lg px-4">
                         <i class="bi bi-search me-2"></i> Cek Status Pendaftaran
                     </a>
                 </div>
