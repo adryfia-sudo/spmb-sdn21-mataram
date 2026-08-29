@@ -363,8 +363,8 @@ protected function validateStepEight(): void
       |--------------------------------------------------------------------------
       */
 
-public function nextStep(): void
-{
+    public function nextStep(): void
+    {
     /*
     |--------------------------------------------------------------------------
     | Step 1
@@ -383,7 +383,7 @@ public function nextStep(): void
     | Step 2 - Data Peserta
     |--------------------------------------------------------------------------
     */
-if ($this->step === 2) {
+    if ($this->step === 2) {
     $this->validateStepTwo();
 
     $this->step = 3;
@@ -396,7 +396,7 @@ if ($this->step === 2) {
     ]);
 
     return;
-}
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -478,7 +478,7 @@ if ($this->step === 2) {
 }
 
     public function previousStep(): void
-{
+    {
 
     if ($this->step > 1) {
         $this->step--;
@@ -555,128 +555,128 @@ if ($this->step === 2) {
         $academicYear = AcademicYear::query()
             ->where('is_active', true)
             ->first();
-Log::info('SPMB SUBMIT: academic year ditemukan', [
-    'id' => $academicYear?->id,
-    'name' => $academicYear?->name,
-]);
+        Log::info('SPMB SUBMIT: academic year ditemukan', [
+        'id' => $academicYear?->id,
+        'name' => $academicYear?->name,
+        ]);
 
-if (! $academicYear) {
+        if (! $academicYear) {
 
-    Log::warning(
+        Log::warning(
         'SPMB SUBMIT: academic year tidak ditemukan'
-    );
+        );
 
-    $this->addError(
+        $this->addError(
         'registration',
         'Tahun pelajaran aktif belum tersedia.'
-    );
+        );
 
-    return;
-}
+        return;
+        }
 
 
-/*
-|--------------------------------------------------------------------------
-| Ambil Periode Pendaftaran aktif
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil Periode Pendaftaran aktif
+        |--------------------------------------------------------------------------
+        */
 
-Log::info(
-    'SPMB SUBMIT: academic year valid'
-);
+        Log::info(
+        'SPMB SUBMIT: academic year valid'
+        );
 
-$registrationPeriod = RegistrationPeriod::query()
-    ->where('is_active', true)
-    ->where('academic_year_id', $academicYear->id)
-    ->first();
+        $registrationPeriod = RegistrationPeriod::query()
+        ->where('is_active', true)
+        ->where('academic_year_id', $academicYear->id)
+        ->first();
 
-Log::info(
-    'SPMB SUBMIT: registration period ditemukan',
-    [
+        Log::info(
+        'SPMB SUBMIT: registration period ditemukan',
+        [
         'id' => $registrationPeriod?->id,
-    ]
-);
+        ]
+        );
 
-if (! $registrationPeriod) {
+        if (! $registrationPeriod) {
 
-    Log::warning(
+        Log::warning(
         'SPMB SUBMIT: registration period tidak ditemukan'
-    );
+        );
 
-    $this->addError(
+        $this->addError(
         'registration',
         'Periode pendaftaran aktif belum tersedia.'
-    );
+        );
 
-    return;
-}
+        return;
+        }
 
-Log::info(
-    'SPMB SUBMIT: registration period valid'
-);
+        Log::info(
+        'SPMB SUBMIT: registration period valid'
+        );
         /*
         |--------------------------------------------------------------------------
         | Simpan menggunakan transaction
         |--------------------------------------------------------------------------
         */
-Log::info('SPMB SUBMIT: masuk ke try transaction');
+        Log::info('SPMB SUBMIT: masuk ke try transaction');
         try {
             DB::transaction(function () use (
                 $academicYear,
                 $registrationPeriod
             ) {
-Log::info(
+        Log::info(
             'SPMB SUBMIT: transaction dimulai'
         );
-                /*
-                |--------------------------------------------------------------------------
-                | Ambil jalur pendaftaran
-                |--------------------------------------------------------------------------
-                */
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil jalur pendaftaran
+        |--------------------------------------------------------------------------
+        */
 
-                $path = RegistrationPath::query()
-                    ->where('id', $this->registration_path_id)
-                    ->where('is_active', true)
-                    ->lockForUpdate()
-                    ->first();
+        $path = RegistrationPath::query()
+               ->where('id', $this->registration_path_id)
+               ->where('is_active', true)
+               ->lockForUpdate()
+               ->first();
 
                 if (! $path) {
                     throw new \RuntimeException(
                         'Jalur pendaftaran tidak tersedia atau sudah tidak aktif.'
                     );
                 }
-Log::info('SPMB SUBMIT: registration path ditemukan', [
-    'id' => $path->id,
-    'name' => $path->name ?? null,
-]);
-                /*
-                |--------------------------------------------------------------------------
-                | Buat Registration
-                |--------------------------------------------------------------------------
-                */
-Log::info('SPMB SUBMIT: akan membuat registration');
+        Log::info('SPMB SUBMIT: registration path ditemukan', [
+        'id' => $path->id,
+        'name' => $path->name ?? null,
+        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | Buat Registration
+        |--------------------------------------------------------------------------
+        */
+        Log::info('SPMB SUBMIT: akan membuat registration');
 
-Log::info('SPMB SUBMIT: data registration', [
-    'academic_year_id' => $academicYear->id,
-    'registration_period_id' => $registrationPeriod->id,
-    'registration_path_id' => $path->id,
-    'full_name' => $this->full_name,
-    'nik' => $this->nik,
-    'nisn' => $this->nisn ?: null,
-    'family_card_number' => $this->family_card_number,
-    'birth_certificate_number' => $this->birth_certificate_number ?: null,
-    'gender' => $this->gender,
-    'birth_place' => $this->birth_place,
-    'birth_date' => $this->birth_date,
-    'religion' => $this->religion,
-    'status' => 'pending',
-]);
-try{
-Log::info('SPMB SUBMIT: field tambahan', [
-    'special_needs' => $this->special_needs,
-    'siblings_count' => $this->siblings_count,
-    'child_order' => $this->child_order,
-]);
+        Log::info('SPMB SUBMIT: data registration', [
+        'academic_year_id' => $academicYear->id,
+        'registration_period_id' => $registrationPeriod->id,
+        'registration_path_id' => $path->id,
+        'full_name' => $this->full_name,
+        'nik' => $this->nik,
+        'nisn' => $this->nisn ?: null,
+        'family_card_number' => $this->family_card_number,
+        'birth_certificate_number' => $this->birth_certificate_number ?: null,
+        'gender' => $this->gender,
+        'birth_place' => $this->birth_place,
+        'birth_date' => $this->birth_date,
+        'religion' => $this->religion,
+        'status' => 'pending',
+        ]);
+        try{
+        Log::info('SPMB SUBMIT: field tambahan', [
+        'special_needs' => $this->special_needs,
+        'siblings_count' => $this->siblings_count,
+       'child_order' => $this->child_order,
+       ]);
 
                 $registration = Registration::create([
                     'academic_year_id' => $academicYear->id,
@@ -738,13 +738,13 @@ Log::info('SPMB SUBMIT: field tambahan', [
                     'status' => 'pending',
                 ]);
 
-Log::info('SPMB SUBMIT: registration berhasil dibuat', [
+       Log::info('SPMB SUBMIT: registration berhasil dibuat', [
 
-    'id' => $registration->id,
-]);
-} catch (\Throwable $e) {
+       'id' => $registration->id,
+       ]);
+       } catch (\Throwable $e) {
 
-    Log::error(
+       Log::error(
         'SPMB SUBMIT: Registration::create GAGAL',
         [
             'class' => get_class($e),
@@ -752,20 +752,20 @@ Log::info('SPMB SUBMIT: registration berhasil dibuat', [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
         ]
-    );
+       );
 
-    throw $e;
-}           
+       throw $e;
+       }           
 
-                /*
-                |--------------------------------------------------------------------------
-                | Buat Nomor Pendaftaran
-                |--------------------------------------------------------------------------
-                |
-                | Contoh:
-                | SPMB-2026-00001
-                |
-                */
+       /*
+       |--------------------------------------------------------------------------
+       | Buat Nomor Pendaftaran
+       |--------------------------------------------------------------------------
+       |
+       | Contoh:
+       | SPMB-2026-00001
+       |
+       */
 
                 $registrationNumber = sprintf(
                     'SPMB-%s-%05d',
@@ -794,13 +794,13 @@ Log::info('SPMB SUBMIT: registration berhasil dibuat', [
                 | Upload Dokumen
                 |--------------------------------------------------------------------------
                 */
-Log::info('SPMB SUBMIT: mulai upload dokumen', [
+    Log::info('SPMB SUBMIT: mulai upload dokumen', [
     'registration_id' => $registration->id,
     'registration_number' => $registration->registration_number,
-]);
+    ]);
 
                 $this->saveDocuments($registration);
-Log::info('SPMB SUBMIT: upload dokumen selesai');
+    Log::info('SPMB SUBMIT: upload dokumen selesai');
 
                 /*
                 |--------------------------------------------------------------------------
@@ -885,7 +885,7 @@ Log::info('SPMB SUBMIT: upload dokumen selesai');
         $this->step = 9;
     }
 
- protected function saveGuardianData($registration): void
+    protected function saveGuardianData($registration): void
     {
         if ($this->guardian_status === 'none') {
             return;

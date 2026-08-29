@@ -166,6 +166,20 @@
 
             </div>
 
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <strong>Latitude</strong>
+                    <div>{{ $latitude ?? '-' }}</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Longitude</strong>
+                    <div>{{ $longitude ?? '-' }}</div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 
@@ -468,38 +482,5 @@
 
     </div>
 
-
-    {{-- ========================================================= --}}
-    {{-- TOMBOL --}}
-    {{-- ========================================================= --}}
-
-    <div class="d-flex justify-content-between">
-
-        <button
-            type="button"
-            class="btn btn-secondary"
-            wire:click="previousStep">
-
-            ← Kembali
-
-        </button>
-
-        <button
-            type="button"
-            class="btn btn-success"
-            wire:click="nextStep"
-            wire:loading.attr="disabled">
-
-            <span wire:loading.remove>
-                Kirim Pendaftaran
-            </span>
-
-            <span wire:loading>
-                Menyimpan...
-            </span>
-
-        </button>
-
-    </div>
 
 </div>

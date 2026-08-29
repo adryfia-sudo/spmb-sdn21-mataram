@@ -137,7 +137,7 @@
 
             {{-- MAP CONTAINER ISOLATED --}}
             <div wire:ignore 
-                 x-data="initLeafletMap($wire.entangle('latitude'), $wire.entangle('longitude'))">
+                 x-data="initLeafletMap($wire)">
                 <div x-ref="map" style="height: 350px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6; z-index: 1;"></div>
             </div>
         </div>
@@ -155,53 +155,3 @@
 
     </div>
 </div>
-
-{{-- Global Function JavaScript --}}
-<script>
-    function initLeafletMap(latEntangle, lngEntangle) {
-        return {
-            map: null,
-            marker: null,
-            init() {
-                this.$nextTick(() => {
-                    let defaultLat = parseFloat(latEntangle) || -8.5833;
-                    let defaultLng = parseFloat(lngEntangle) || 116.1167;
-
-                    // Inisialisasi Map
-                    this.map = L.map(this.$refs.map).setView([defaultLat, defaultLng], 15);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors'
-                    }).addTo(this.map);
-
-                    this.marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(this.map);
-
-                    const updateCoords = (lat, lng) => {
-                        latEntangle = lat.toFixed(7);
-                        lngEntangle = lng.toFixed(7);
-                    };
-
-                    if (!latEntangle || !lngEntangle) {
-                        updateCoords(defaultLat, defaultLng);
-                    }
-
-                    // Event drag & click
-                    this.marker.on('dragend', (e) => {
-                        const pos = this.marker.getLatLng();
-                        updateCoords(pos.lat, pos.lng);
-                    });
-
-                    this.map.on('click', (e) => {
-                        this.marker.setLatLng(e.latlng);
-                        updateCoords(e.latlng.lat, e.latlng.lng);
-                    });
-
-                    // Force rendering tiles
-                    setTimeout(() => {
-                        this.map.invalidateSize();
-                    }, 250);
-                });
-            }
-        };
-    }
-</script>

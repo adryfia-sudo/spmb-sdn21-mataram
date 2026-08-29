@@ -25,6 +25,7 @@
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @vite(['resources/js/app.js'])
 
     {{-- CSS aplikasi --}}
     {{-- @vite(['resources/css/app.css']) --}}
@@ -82,9 +83,6 @@
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
     ></script>
-
-    {{-- JS aplikasi --}}
-    {{-- @vite(['resources/js/app.js']) --}}
 
     @livewireScripts
 
