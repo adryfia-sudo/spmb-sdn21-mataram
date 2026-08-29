@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Registration;
+use App\Models\Region;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -16,9 +17,35 @@ class RegistrationExcelExportService
                 'academicYear',
                 'registrationPath',
                 'registrationPeriod',
+                'address',
             ])
             ->orderBy('registration_number')
             ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil nama wilayah berdasarkan kode
+        |--------------------------------------------------------------------------
+        */
+
+        $regionCodes = $registrations
+            ->flatMap(function ($registration) {
+                $address = $registration->address;
+
+                return [
+                    $address?->province,
+                    $address?->city,
+                    $address?->district,
+                    $address?->village,
+                ];
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $regions = Region::query()
+            ->whereIn('code', $regionCodes)
+            ->pluck('name', 'code');
 
         $spreadsheet = new Spreadsheet();
 
@@ -31,14 +58,14 @@ class RegistrationExcelExportService
         |--------------------------------------------------------------------------
         */
 
-        $sheet->mergeCells('A1:K1');
+        $sheet->mergeCells('A1:T1');
 
         $sheet->setCellValue(
             'A1',
             'DATA PENDAFTARAN MURID BARU - SD NEGERI 21 MATARAM'
         );
 
-        $sheet->mergeCells('A2:K2');
+        $sheet->mergeCells('A2:T2');
 
         $sheet->setCellValue(
             'A2',
@@ -62,6 +89,15 @@ class RegistrationExcelExportService
             'Tanggal Lahir',
             'Jalur',
             'Tahun Ajaran',
+            'Provinsi',
+            'Kota/Kabupaten',
+            'Kecamatan',
+            'Kelurahan/Desa',
+	    'Alamat',
+	    'Dusun/Lingkungan',
+	    'RT',
+	    'RW',
+	    'Kode Pos',
             'Status',
         ];
 
@@ -87,6 +123,13 @@ class RegistrationExcelExportService
 
         foreach ($registrations as $registration) {
 
+            $address = $registration->address;
+
+            $province = $regions[$address?->province] ?? '';
+            $city = $regions[$address?->city] ?? '';
+            $district = $regions[$address?->district] ?? '';
+            $village = $regions[$address?->village] ?? '';
+
             $sheet->setCellValue(
                 "A{$row}",
                 $number
@@ -100,7 +143,7 @@ class RegistrationExcelExportService
 
             $sheet->setCellValue(
                 "C{$row}",
-                $registration->full_name
+                $registration->full_name ?? ''
             );
 
             $sheet->setCellValueExplicit(
@@ -117,12 +160,12 @@ class RegistrationExcelExportService
 
             $sheet->setCellValue(
                 "F{$row}",
-                $registration->gender
+                $registration->gender ?? ''
             );
 
             $sheet->setCellValue(
                 "G{$row}",
-                $registration->birth_place
+                $registration->birth_place ?? ''
             );
 
             $sheet->setCellValue(
@@ -144,8 +187,50 @@ class RegistrationExcelExportService
 
             $sheet->setCellValue(
                 "K{$row}",
-                $registration->status ?? ''
+                 $regions[$registration->address?->province] ?? ''
             );
+
+            $sheet->setCellValue(
+                "L{$row}",
+                 $regions[$registration->address?->city] ?? ''
+            );
+
+            $sheet->setCellValue(
+                "M{$row}",
+                $regions[$registration->address?->district] ?? ''
+            );
+
+            $sheet->setCellValue(
+                "N{$row}",
+                $regions[$registration->address?->village] ?? ''
+            );
+
+            $sheet->setCellValue(
+                "O{$row}",
+                $registration->address?->address ?? ''
+            );
+$sheet->setCellValue(
+    "P{$row}",
+    $registration->address?->hamlet ?? ''
+);
+
+$sheet->setCellValue(
+    "Q{$row}",
+    $registration->address?->rt ?? ''
+);
+$sheet->setCellValue(
+    "R{$row}",
+    $registration->address?->rw ?? ''
+);
+
+$sheet->setCellValue(
+    "S{$row}",
+    $registration->address?->postal_code ?? ''
+);
+$sheet->setCellValue(
+    "T{$row}",
+    $registration->status ?? ''
+);
 
             $row++;
             $number++;
@@ -157,14 +242,14 @@ class RegistrationExcelExportService
         |--------------------------------------------------------------------------
         */
 
-        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:K1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:T1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:T1')->getFont()->setSize(14);
 
-        $sheet->getStyle('A2:K2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:T2')->getFont()->setBold(true);
 
-        $sheet->getStyle('A4:K4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:T4')->getFont()->setBold(true);
 
-        $sheet->getStyle('A4:K4')
+        $sheet->getStyle('A4:T4')
             ->getAlignment()
             ->setHorizontal(
                 \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
@@ -178,7 +263,7 @@ class RegistrationExcelExportService
         |--------------------------------------------------------------------------
         */
 
-        foreach (range('A', 'K') as $column) {
+        foreach (range('A', 'T') as $column) {
             $sheet
                 ->getColumnDimension($column)
                 ->setAutoSize(true);

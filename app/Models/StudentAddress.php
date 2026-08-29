@@ -31,4 +31,47 @@ class StudentAddress extends Model
     {
         return $this->belongsTo(Registration::class);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | WILAYAH
+    |--------------------------------------------------------------------------
+    */
+
+    public function provinceRegion(): BelongsTo
+    {
+        return $this->belongsTo(
+            Region::class,
+            'province',
+            'code'
+        );
+    }
+
+    public function cityRegion(): BelongsTo
+    {
+        return $this->belongsTo(
+            Region::class,
+            'city',
+            'code'
+        );
+    }
+
+    public function districtRegion(): BelongsTo
+    {
+        return $this->belongsTo(
+            Region::class,
+            'district',
+            'code'
+        );
+    }
+
+    public function villageRegion(): BelongsTo
+    {
+        return $this->belongsTo(
+            Region::class,
+            'village',
+            'code'
+        );
+    }
+
 }
