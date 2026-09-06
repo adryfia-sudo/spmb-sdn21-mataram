@@ -19,7 +19,14 @@ class HomeController extends Controller
             ->first();
 
         $registrationPeriod = RegistrationPeriod::where('is_active', true)
-            ->first();
+    	    ->latest('id')
+    	    ->first();
+
+	$registrationOpen = $registrationPeriod
+    	&& $registrationPeriod->start_date
+    	&& $registrationPeriod->end_date
+    	&& $registrationPeriod->start_date->lte(today())
+    	&& $registrationPeriod->end_date->gte(today());
 
         $registrationPaths = RegistrationPath::where('is_active', true)
             ->orderBy('sort_order')
@@ -30,12 +37,13 @@ class HomeController extends Controller
         $totalPaths = $registrationPaths->count();
 
         return view('front.home', compact(
-            'school',
-            'academicYear',
-            'registrationPeriod',
-            'registrationPaths',
-            'totalRegistered',
-            'totalPaths',
+             'school',
+    	     'academicYear',
+    	     'registrationPeriod',
+    	     'registrationPaths',
+    	     'totalRegistered',
+    	     'totalPaths',
+    	     'registrationOpen',
         ));
     }
 }

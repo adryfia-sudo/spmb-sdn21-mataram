@@ -27,11 +27,17 @@ class RegistrationPathResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Master Data';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMap;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
 
     public static function form(Schema $schema): Schema
     {

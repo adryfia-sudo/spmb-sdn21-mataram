@@ -117,6 +117,8 @@
 
                     'KTP Wali'
                         => 'document_guardian_ktp',
+           	    'KK Wali'
+			=> 'document_guardian_kk',
 
                     'Ijazah'
                         => 'document_diploma',
@@ -134,8 +136,14 @@
                 |--------------------------------------------------------------------------
                 */
 
-                $isGuardianDocument =
-                    $documentType->name === 'KTP Wali';
+                $isGuardianDocument = in_array(
+    		    $documentType->name,
+    		[
+        		'KTP Wali',
+        		'KK Wali',
+    		],
+    		true
+		);
 
                 $guardianRequired = in_array(
                     $guardian_status,

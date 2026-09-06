@@ -445,7 +445,7 @@
         <option value="">-- Pilih --</option>
 
         <option value="less_than_1_km">
-            Kurang dari 1 KM
+            Dibawah 1 KM
         </option>
 
         <option value="more_than_1_km">

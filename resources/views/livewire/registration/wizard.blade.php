@@ -2,10 +2,37 @@
 
     <div class="mb-4">
         <h2 class="mb-1">Pendaftaran Murid Baru</h2>
-        <p class="text-muted mb-0">SPMB SD Negeri 21 Mataram</p>
+        <p class="text-muted mb-0">SPMB SD NEGERI 21 MATARAM</p>
     </div>
 
-    @if($step >= 1 && $step <= 8)
+@if(!$registrationOpen && $step < 9)
+    <div class="card border-warning shadow-sm">
+        <div class="card-body text-center py-5">
+            <h3 class="fw-bold mb-3">Pendaftaran Sedang Ditutup</h3>
+
+            <p class="text-muted mb-3">
+                Pendaftaran SPMB SD Negeri 21 Mataram saat ini sudah ditutup.
+            </p>
+
+            @if($registrationPeriod)
+                <p class="mb-0">
+                    Periode pendaftaran:
+                    <strong>
+                        {{ $registrationPeriod->start_date->translatedFormat('d F Y') }}
+                        –
+                        {{ $registrationPeriod->end_date->translatedFormat('d F Y') }}
+                    </strong>
+                </p>
+            @else
+                <p class="mb-0 text-muted">
+                    Silahkan melakukan pendaftaran saat pendaftaran dibuka.
+                </p>
+            @endif
+        </div>
+    </div>
+@endif
+
+    @if($registrationOpen && $step >= 1 && $step <= 8)
         {{-- Progress Bar --}}
         <div class="progress mb-4" style="height: 24px;">
             <div class="progress-bar" role="progressbar" style="width: {{ ($step / 8) * 100 }}%;" aria-valuenow="{{ $step }}" aria-valuemin="1" aria-valuemax="8">

@@ -29,6 +29,12 @@ class AcademicYearResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return AcademicYearForm::configure($schema);

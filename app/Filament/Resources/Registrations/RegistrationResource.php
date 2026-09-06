@@ -22,7 +22,28 @@ class RegistrationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Pendaftaran';
+
+    protected static ?string $modelLabel = 'Pendaftaran';
+
+    protected static ?string $pluralModelLabel = 'Pendaftaran';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Pendaftaran';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'full_name';
+
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && in_array(auth()->user()?->role, [
+            'super_admin',
+            'admin',
+            'panitia',
+        ], true);
+    }
 
     public static function form(Schema $schema): Schema
     {

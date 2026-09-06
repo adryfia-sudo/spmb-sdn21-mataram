@@ -41,6 +41,7 @@ class User extends Authenticatable implements FilamentUser
                 'super_admin',
                 'admin',
                 'panitia',
+		'operator_website',
             ], true);
     }
 
@@ -61,4 +62,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->role === 'panitia';
     }
+public function isWebsiteOperator(): bool
+{
+    return $this->role === 'operator_website';
+}
 }

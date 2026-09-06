@@ -11,9 +11,12 @@ class EditRegistration extends EditRecord
     protected static string $resource = RegistrationResource::class;
 
     protected function getHeaderActions(): array
-    {
-        return [
-            DeleteAction::make(),
-        ];
-    }
+{
+    return [
+        DeleteAction::make()
+            ->visible(
+                fn (): bool => auth()->user()?->isAdmin() === true
+            ),
+    ];
+}
 }

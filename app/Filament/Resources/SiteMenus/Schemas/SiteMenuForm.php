@@ -21,6 +21,14 @@ class SiteMenuForm
                             ->placeholder('Contoh: Profil')
                             ->required()
                             ->maxLength(100),
+		Select::make('site')
+    		->label('Portal')
+    		->options([
+        	      'school' => 'Website Sekolah',
+        	      'spmb' => 'SPMB',
+    	])
+    		->default('school')
+    		->required(),
 
                         Select::make('type')
                             ->label('Jenis Menu')
@@ -33,26 +41,31 @@ class SiteMenuForm
                             ->live(),
 
                         Select::make('route_name')
-                            ->label('Halaman / Route')
-                            ->options([
-                                'home' => 'Beranda',
-                                'front.profile' => 'Profil',
-                                'front.schedule' => 'Jadwal',
-                                'front.paths' => 'Jalur Pendaftaran',
-                                'front.requirements' => 'Persyaratan',
-                                'registration.status' => 'Cek Status Pendaftaran',
-                                'registration.create' => 'Daftar Sekarang',
-                            ])
-                            ->searchable()
-                            ->nullable()
-                            ->visible(fn ($get) => $get('type') === 'internal'),
+    ->label('Halaman / Route')
+    ->options(function ($get): array {
+        if ($get('site') === 'school') {
+            return [
+                'school.home' => 'Beranda',
+                'school.profile' => 'Profil',
+		'school.news.index' => 'Berita',
+                'school.announcements.index' => 'Pengumuman',
+		'school.gallery.index' => 'Galeri',
+            ];
+        }
 
-                        TextInput::make('url')
-                            ->label('URL Eksternal')
-                            ->placeholder('https://contoh.com')
-                            ->url()
-                            ->nullable()
-                            ->visible(fn ($get) => $get('type') === 'external'),
+        return [
+            'home' => 'Beranda',
+            'front.profile' => 'Profil',
+            'front.schedule' => 'Jadwal',
+            'front.paths' => 'Jalur Pendaftaran',
+            'front.requirements' => 'Persyaratan',
+            'registration.status' => 'Cek Status Pendaftaran',
+            'registration.create' => 'Daftar Sekarang',
+        ];
+    })
+    ->searchable()
+    ->nullable()
+    ->visible(fn ($get) => $get('type') === 'internal'),
 
                         Select::make('location')
                             ->label('Lokasi Menu')

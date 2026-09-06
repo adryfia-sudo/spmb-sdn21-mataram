@@ -27,6 +27,8 @@ trait HasDocumentData
     public $document_mother_ktp = null;
 
     public $document_guardian_ktp = null;
+    
+    public $document_guardian_kk = null;
 
     public $document_diploma = null;
 
@@ -131,6 +133,7 @@ trait HasDocumentData
             'KTP Ayah' => 'document_father_ktp',
             'KTP Ibu' => 'document_mother_ktp',
             'KTP Wali' => 'document_guardian_ktp',
+            'KK Wali' => 'document_guardian_kk',
             'Ijazah' => 'document_diploma',
             'Dokumen Pendukung' => 'document_supporting',
             default => null,

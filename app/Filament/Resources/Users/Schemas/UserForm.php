@@ -50,11 +50,13 @@ class UserForm
                                 'super_admin' => 'Super Administrator',
                                 'admin' => 'Administrator',
                                 'panitia' => 'Panitia',
+				'operator_website' => 'Operator Website',
                             ];
                         }
 
                         return [
                             'panitia' => 'Panitia',
+			    'operator_website' => 'Operator Website',
                         ];
                     })
                     ->required()

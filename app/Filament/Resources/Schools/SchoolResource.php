@@ -23,9 +23,15 @@ class SchoolResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'school_name';
 
-    protected static string|UnitEnum|null  $navigationGroup = 'Konfigurasi';
+    protected static string|UnitEnum|null  $navigationGroup = 'Pengaturan';
 
     protected static ?string $navigationLabel = 'Profil Sekolah';
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
 
     public static function form(Schema $schema): Schema
     {

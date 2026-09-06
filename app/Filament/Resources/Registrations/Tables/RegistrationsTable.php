@@ -8,6 +8,7 @@ use App\Services\RegistrationExcelExportService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\BulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -252,8 +253,75 @@ class RegistrationsTable
                 */
 
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+    BulkAction::make('accept')
+        ->label('Diterima')
+        ->icon('heroicon-o-check')
+        ->color('success')
+        ->requiresConfirmation()
+        ->modalHeading('Terima Pendaftaran')
+        ->modalDescription('Pendaftaran yang dipilih dan berstatus Terverifikasi akan diubah menjadi Diterima.')
+        ->modalSubmitActionLabel('Ya, Diterima')
+        ->modalCancelActionLabel('Batal')
+        ->action(function (\Illuminate\Database\Eloquent\Collection $records): void {
+            DB::transaction(function () use ($records): void {
+                foreach ($records as $record) {
+                    $record->refresh();
+
+                    if ($record->status !== 'verified') {
+                        continue;
+                    }
+
+                    $record->update([
+                        'status' => 'accepted',
+                    ]);
+
+                    VerificationLog::create([
+                        'registration_id' => $record->id,
+                        'user_id' => auth()->id(),
+                        'status' => 'accepted',
+                        'notes' => 'Pendaftar dinyatakan diterima melalui bulk action.',
+                    ]);
+                }
+            });
+        }),
+
+    BulkAction::make('reject')
+        ->label('Tidak Diterima')
+        ->icon('heroicon-o-x-circle')
+        ->color('danger')
+        ->requiresConfirmation()
+        ->modalHeading('Tolak Pendaftaran')
+        ->modalDescription('Pendaftaran yang dipilih dan berstatus Terverifikasi akan diubah menjadi Tidak Diterima.')
+        ->modalSubmitActionLabel('Ya, Tidak Diterima')
+        ->modalCancelActionLabel('Batal')
+        ->action(function (\Illuminate\Database\Eloquent\Collection $records): void {
+            DB::transaction(function () use ($records): void {
+                foreach ($records as $record) {
+                    $record->refresh();
+
+                    if ($record->status !== 'verified') {
+                        continue;
+                    }
+
+                    $record->update([
+                        'status' => 'rejected',
+                    ]);
+
+                    VerificationLog::create([
+                        'registration_id' => $record->id,
+                        'user_id' => auth()->id(),
+                        'status' => 'rejected',
+                        'notes' => 'Pendaftar dinyatakan tidak diterima melalui bulk action.',
+                    ]);
+                }
+            });
+        }),
+
+    DeleteBulkAction::make()
+        ->visible(
+            fn (): bool => auth()->user()?->isAdmin() === true
+        ),
+]),
             ]);
     }
 }

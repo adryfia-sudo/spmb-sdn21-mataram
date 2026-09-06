@@ -27,6 +27,11 @@
             <ul class="navbar-nav ms-auto">
 
 <li class="nav-item">
+    <a class="nav-link" href="{{ url('/school') }}">
+        Website Sekolah
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="{{ route('front.profile') }}">
         Profil
     </a>
@@ -53,6 +58,12 @@
 <li class="nav-item">
     <a class="nav-link" href="{{ route('registration.status') }}">
         Cek Status
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url('/admin/login') }}">
+        Login Admin
     </a>
 </li>
 

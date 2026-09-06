@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use App\Models\MasterReference;
 
 class RegistrationForm
 {
@@ -71,16 +72,17 @@ class RegistrationForm
                             ->required(),
 
                         Select::make('religion')
-                            ->label('Agama')
-                            ->options([
-                                'Islam' => 'Islam',
-                                'Kristen' => 'Kristen',
-                                'Katolik' => 'Katolik',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
-                                'Konghucu' => 'Konghucu',
-                            ])
-                            ->required(),
+    			    ->label('Agama')
+    			    ->options(fn () => MasterReference::query()
+        		    ->where('category', MasterReference::RELIGION)
+        		    ->where('is_active', true)
+        		    ->orderBy('sort_order')
+        		    ->orderBy('name')
+        		    ->pluck('name', 'code')
+        			->toArray()
+    		        )
+    			    ->searchable()
+    			    ->required(),
 
                         TextInput::make('phone')
                             ->label('No HP / WhatsApp')

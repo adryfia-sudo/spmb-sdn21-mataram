@@ -26,10 +26,17 @@ class RequirementResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
 
     public static function form(Schema $schema): Schema
     {

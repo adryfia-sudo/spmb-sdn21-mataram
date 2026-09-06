@@ -8,6 +8,7 @@ use App\Http\Controllers\DocumentPreviewController;
 use App\Http\Controllers\RegistrationProofController;
 use App\Http\Controllers\Front\RegistrationStatusController;
 use App\Http\Controllers\Front\InformationController;
+use App\Http\Controllers\SchoolController;
 
 Route::middleware('auth')->group(function () {
     Route::get(
@@ -15,6 +16,33 @@ Route::middleware('auth')->group(function () {
         DocumentPreviewController::class
     )->name('admin.documents.preview');
 });
+Route::get('/school', [SchoolController::class, 'index'])
+    ->name('school.home');
+
+Route::get('/school/berita', [SchoolController::class, 'newsIndex'])
+    ->name('school.news.index');
+
+Route::get('/school/profil', [SchoolController::class, 'profile'])
+    ->name('school.profile');
+
+Route::get('/school/galeri', [SchoolController::class, 'galleryIndex'])
+    ->name('school.gallery.index');
+
+Route::get('/school/galeri/{slug}', [SchoolController::class, 'gallery'])
+    ->name('school.gallery.show');
+
+Route::get('/school/berita/{slug}', [SchoolController::class, 'news'])
+    ->name('school.news.show');
+
+Route::get('/school/pengumuman', [SchoolController::class, 'announcementsIndex'])
+    ->name('school.announcements.index');
+
+Route::get('/school/pengumuman/{slug}', [SchoolController::class, 'announcement'])
+    ->name('school.announcements.show');
+
+Route::get('/school/pengumuman/{slug}/lampiran', [SchoolController::class, 'announcementAttachment'])
+    ->name('school.announcements.attachment');
+
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 

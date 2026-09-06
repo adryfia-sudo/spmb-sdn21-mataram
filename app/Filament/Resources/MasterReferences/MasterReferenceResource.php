@@ -20,7 +20,23 @@ class MasterReferenceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Data Referensi';
+
+    protected static ?string $modelLabel = 'Data Referensi';
+
+    protected static ?string $pluralModelLabel = 'Data Referensi';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
 
     public static function form(Schema $schema): Schema
     {

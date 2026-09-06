@@ -20,7 +20,23 @@ class RegistrationPeriodResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Periode Pendaftaran';
+
+    protected static ?string $modelLabel = 'Periode Pendaftaran';
+
+    protected static ?string $pluralModelLabel = 'Periode Pendaftaran';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Pendaftaran';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+    return auth()->user()?->is_active === true
+        && auth()->user()?->isAdmin() === true;
+    }
 
     public static function form(Schema $schema): Schema
     {

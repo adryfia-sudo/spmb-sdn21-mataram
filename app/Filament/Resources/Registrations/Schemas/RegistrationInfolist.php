@@ -335,9 +335,14 @@ class RegistrationInfolist
                 */
 
                 Section::make('Jarak dan Transportasi')
-                    ->schema([
+                        ->schema([
                         TextEntry::make('distance_category')
-                            ->label('Kategori Jarak'),
+    			    ->label('Kategori Jarak')
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+        		   'less_than_1_km' => 'Di bawah 1 KM',
+        		   'more_than_1_km' => 'Lebih dari 1 KM',
+        		   default => $state ?? '-',
+    			}),
 
                         TextEntry::make('distance_km')
                             ->label('Jarak')

@@ -30,4 +30,11 @@ class RegistrationPeriod extends Model
     {
         return $this->belongsTo(AcademicYear::class);
     }
+    public function scopeOpenForRegistration($query)
+    {
+    return $query
+        ->where('is_active', true)
+        ->whereDate('start_date', '<=', today())
+        ->whereDate('end_date', '>=', today());
+    }
 }

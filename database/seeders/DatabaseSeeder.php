@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
               MasterReferenceSeeder::class,
               RegistrationPathSeeder::class,
 	      RegionSeeder::class,
+	      HomepageSectionSeeder::class,
         ]);
     }
 }

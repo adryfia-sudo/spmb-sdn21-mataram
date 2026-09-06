@@ -25,6 +25,10 @@ class Wizard extends Component
     public bool $confirmation = false;
 
     public ?Registration $registration = null;
+    
+    public ?RegistrationPeriod $registrationPeriod = null;
+
+    public bool $registrationOpen = false;
 
     /*
     |--------------------------------------------------------------------------
@@ -92,15 +96,32 @@ class Wizard extends Component
     */
 
     public function mount(): void
-    {
+{
+    $academicYear = AcademicYear::query()
+        ->where('is_active', true)
+        ->first();
+
+    if ($academicYear) {
+        $this->registrationPeriod = RegistrationPeriod::query()
+            ->where('is_active', true)
+            ->where('academic_year_id', $academicYear->id)
+            ->first();
+    }
+
+    $this->registrationOpen = $this->registrationPeriod !== null
+        && $this->registrationPeriod->start_date->lte(today())
+        && $this->registrationPeriod->end_date->gte(today());
+
+    if ($this->registrationOpen) {
         $this->paths = RegistrationPath::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
-
-        $this->initializeAddressData();
-        $this->initializeDocumentData();
     }
+
+    $this->initializeAddressData();
+    $this->initializeDocumentData();
+}
 public function updatedDistanceCategory($value): void
 {
     Log::info('SPMB DISTANCE CATEGORY BERUBAH', [
@@ -571,9 +592,9 @@ protected function validateStepEight(): void
         );
 
         $registrationPeriod = RegistrationPeriod::query()
-        ->where('is_active', true)
-        ->where('academic_year_id', $academicYear->id)
-        ->first();
+    	    ->openForRegistration()
+    	    ->where('academic_year_id', $academicYear->id)
+    	    ->first();
 
         Log::info(
         'SPMB SUBMIT: registration period ditemukan',

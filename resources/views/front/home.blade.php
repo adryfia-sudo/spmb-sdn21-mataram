@@ -21,19 +21,25 @@
             </p>
         @endif
 
-        @if($registrationPeriod)
+        @if($registrationOpen)
 
-            @if($registrationPeriod->is_active)
-                <span class="badge bg-success fs-6 mb-3">
-                    Pendaftaran Dibuka
-                </span>
-            @else
-                <span class="badge bg-danger fs-6 mb-3">
-                    Pendaftaran Ditutup
-                </span>
-            @endif
+    <span class="badge bg-success fs-6 mb-3">
+        Pendaftaran Dibuka
+    </span>
 
-        @endif
+@else
+
+    <div class="mb-3">
+        <span class="badge bg-danger fs-6 mb-2">
+            Pendaftaran Ditutup
+        </span>
+
+        <div class="text-muted">
+            Silahkan akses pendaftaran saat pendaftaran dibuka.
+        </div>
+    </div>
+
+@endif
 
 <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
 

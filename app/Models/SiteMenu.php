@@ -8,6 +8,7 @@ class SiteMenu extends Model
 {
     protected $fillable = [
         'label',
+	'site',
         'type',
         'route_name',
         'url',
