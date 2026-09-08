@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\News;
+use App\Models\Announcement;
+use App\Models\HomepageSection;
+use App\Models\School;
+use App\Models\SiteMenu;
+
+class SchoolController extends Controller
+{
+    public function index()
+    {
+        $school = School::first();
+	$sections = HomepageSection::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $menus = SiteMenu::query()
+            ->where('site', 'school')
+            ->where('location', 'navbar')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+	$news = News::query()
+    	    ->where('is_active', true)
+    	    ->whereNotNull('published_at')
+    	    ->where('published_at', '<=', now())
+    	    ->latest('published_at')
+    	    ->take(3)
+    	    ->get();
+
+$announcements = Announcement::query()
+    ->where('is_active', true)
+    ->whereNotNull('published_at')
+    ->where('published_at', '<=', now())
+    ->latest('published_at')
+    ->take(3)
+    ->get();
+
+        return view('school.home', compact(
+            'school',
+	    'sections',
+            'menus',
+	    'news',
+        ));
+    }
+public function profile()
+{
+    $school = School::query()->first();
+
+    $menus = SiteMenu::query()
+        ->where('site', 'school')
+        ->where('location', 'navbar')
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+
+    return view('school.profile', compact(
+        'school',
+        'menus'
+    ));
+}
+public function newsIndex()
+{
+    $school = School::query()->first();
+
+    $menus = SiteMenu::query()
+        ->where('site', 'school')
+        ->where('location', 'navbar')
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+
+    $news = News::query()
+        ->where('is_active', true)
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->latest('published_at')
+        ->get();
+
+    return view('school.news.index', compact(
+        'school',
+        'menus',
+        'news',
+    ));
+}
+
+public function news(string $slug)
+{
+    $school = School::query()->first();
+
+    $menus = SiteMenu::query()
+        ->where('site', 'school')
+        ->where('location', 'navbar')
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+
+    $news = News::query()
+        ->where('is_active', true)
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->where('slug', $slug)
+        ->firstOrFail();
+
+    return view('school.news.show', compact(
+        'school',
+        'menus',
+        'news',
+    ));
+}
+}
