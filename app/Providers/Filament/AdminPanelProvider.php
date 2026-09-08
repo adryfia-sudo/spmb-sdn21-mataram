@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\View\PanelsRenderHook;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Widgets\RegistrationPathChart;
 use Filament\Http\Middleware\Authenticate;
@@ -18,7 +19,6 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -30,14 +30,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-	    ->brandName('ADMIN SD Negeri 21 Mataram')
-	    ->brandLogo(new HtmlString(
-    '<div class="flex items-center gap-2">
-        <img src="' . asset('storage/school-logo/01KZQDDQHAAJGNXP5NTBJBZ8KK.png') . '" class="fi-logo" style="height: 1.5rem;" alt="SD Negeri 21 Mataram">
-        <span class="text-sm font-semibold whitespace-nowrap">ADMIN SD Negeri 21 Mataram</span>
-    </div>'
-))
-            ->colors([
+	    ->brandName('SD Negeri 21 Mataram')
+	    ->brandLogo(asset('storage/school-logo/01KZQDDQHAAJGNXP5NTBJBZ8KK.png'))
+            ->brandLogoHeight('4rem')
+	    ->renderHook(
+    		PanelsRenderHook::SIDEBAR_LOGO_AFTER,
+    		fn (): string => '<div class="px-4 pb-3 text-sm font-semibold whitespace-nowrap">ADMIN SD Negeri 21 Mataram</div>',
+	    )
+	    ->colors([
                 'primary' => Color::Blue,
             ])
 	    ->navigationItems([
